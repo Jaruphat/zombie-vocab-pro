@@ -170,17 +170,17 @@ export interface SettingsStore extends GameSettings {
   setQuestionTypes: (types: GameSettings['questionTypes']) => void;
 }
 
-// PixiJS Game Types
-export interface GameApplication {
-  app: PIXI.Application;
-  currentScene: PIXI.Container;
-  loader: PIXI.Loader;
-  ticker: PIXI.Ticker;
-}
+// PixiJS Game Types (unused but kept for future reference)
+// export interface GameApplication {
+//   app: PIXI.Application;
+//   currentScene: PIXI.Container;
+//   loader: PIXI.Loader;
+//   ticker: PIXI.Ticker;
+// }
 
-export interface GameScene {
-  container: PIXI.Container;
-  init: () => void;
-  update: (deltaTime: number) => void;
-  destroy: () => void;
-}
+// export interface GameScene {
+//   container: PIXI.Container;
+//   init: () => void;
+//   update: (deltaTime: number) => void;
+//   destroy: () => void;
+// }

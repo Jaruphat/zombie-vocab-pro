@@ -47,26 +47,6 @@ export class AudioSystem {
     oscillator.stop(this.context.currentTime + 0.1);
   }
 
-  public playHitSound(): void {
-    if (!this.soundsEnabled || !this.context) return;
-    
-    const oscillator = this.context.createOscillator();
-    const gainNode = this.context.createGain();
-    
-    oscillator.connect(gainNode);
-    gainNode.connect(this.context.destination);
-    
-    oscillator.type = 'sawtooth';
-    oscillator.frequency.setValueAtTime(150, this.context.currentTime);
-    oscillator.frequency.exponentialRampToValueAtTime(50, this.context.currentTime + 0.2);
-    
-    gainNode.gain.setValueAtTime(0.15 * this.soundVolume, this.context.currentTime);
-    gainNode.gain.exponentialRampToValueAtTime(0.01, this.context.currentTime + 0.2);
-    
-    oscillator.start(this.context.currentTime);
-    oscillator.stop(this.context.currentTime + 0.2);
-  }
-
   public playCorrectAnswerSound(): void {
     if (!this.soundsEnabled || !this.context) return;
     
@@ -109,55 +89,6 @@ export class AudioSystem {
     
     oscillator.start(this.context.currentTime);
     oscillator.stop(this.context.currentTime + 0.5);
-  }
-
-  public playZombieDeathSound(): void {
-    if (!this.soundsEnabled || !this.context) return;
-    
-    // Create a noise-like sound for zombie death
-    const bufferSize = this.context.sampleRate * 0.3;
-    const buffer = this.context.createBuffer(1, bufferSize, this.context.sampleRate);
-    const output = buffer.getChannelData(0);
-    
-    for (let i = 0; i < bufferSize; i++) {
-      output[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / bufferSize, 2);
-    }
-    
-    const source = this.context.createBufferSource();
-    const gainNode = this.context.createGain();
-    
-    source.buffer = buffer;
-    source.connect(gainNode);
-    gainNode.connect(this.context.destination);
-    
-    gainNode.gain.setValueAtTime(0.05 * this.soundVolume, this.context.currentTime);
-    gainNode.gain.exponentialRampToValueAtTime(0.01, this.context.currentTime + 0.3);
-    
-    source.start(this.context.currentTime);
-  }
-
-  public playLevelUpSound(): void {
-    if (!this.soundsEnabled || !this.context) return;
-    
-    // Ascending arpeggio for level up
-    const frequencies = [261, 329, 392, 523, 659]; // C, E, G, C, E
-    
-    frequencies.forEach((freq, index) => {
-      const oscillator = this.context!.createOscillator();
-      const gainNode = this.context!.createGain();
-      
-      oscillator.connect(gainNode);
-      gainNode.connect(this.context!.destination);
-      
-      oscillator.type = 'sine';
-      oscillator.frequency.setValueAtTime(freq, this.context!.currentTime + index * 0.1);
-      
-      gainNode.gain.setValueAtTime(0.08 * this.soundVolume, this.context!.currentTime + index * 0.1);
-      gainNode.gain.exponentialRampToValueAtTime(0.01, this.context!.currentTime + index * 0.1 + 0.4);
-      
-      oscillator.start(this.context!.currentTime + index * 0.1);
-      oscillator.stop(this.context!.currentTime + index * 0.1 + 0.4);
-    });
   }
 
   public playButtonClickSound(): void {
@@ -237,23 +168,6 @@ export class AudioSystem {
       this.currentMusic.pause();
       this.currentMusic.currentTime = 0;
       this.currentMusic = null;
-    }
-  }
-
-  public pauseBackgroundMusic(): void {
-    if (this.currentMusic && !this.currentMusic.paused) {
-      this.currentMusic.pause();
-    }
-  }
-
-  public resumeBackgroundMusic(): void {
-    if (this.currentMusic && this.currentMusic.paused) {
-      const playPromise = this.currentMusic.play();
-      if (playPromise !== undefined) {
-        playPromise.catch(error => {
-          console.warn('Failed to resume background music:', error);
-        });
-      }
     }
   }
 

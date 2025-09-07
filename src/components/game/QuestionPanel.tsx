@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import type { VocabQuestion } from '../../types';
-import { useTouchGestures } from '../../hooks/useTouchGestures';
-import { useViewport } from '../../hooks/useViewport';
+// import { useTouchGestures } from '../../hooks/useTouchGestures';
+// import { useViewport } from '../../hooks/useViewport';
 import { useTranslation } from '../../hooks/useTranslation';
 
 interface QuestionPanelProps {
@@ -22,7 +22,7 @@ export const QuestionPanel: React.FC<QuestionPanelProps> = ({
   const [selectedAnswer, setSelectedAnswer] = useState<string>('');
   const [arrangedLetters, setArrangedLetters] = useState<string[]>([]);
   const [typedAnswer, setTypedAnswer] = useState<string>('');
-  const viewport = useViewport();
+  // const viewport = useViewport();
   const { t } = useTranslation();
 
   useEffect(() => {
