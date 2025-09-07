@@ -1,0 +1,130 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  /* Default character positioning values - MUST BE FIRST */
+  :root {
+    --player-ground-offset: 40%;
+    --zombie-ground-offset: 40%;
+  }
+
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  html, body, #root {
+    height: 100%;
+    overflow: hidden;
+  }
+  
+  body {
+    font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+    line-height: 1.5;
+    font-weight: 400;
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    -webkit-text-size-adjust: 100%;
+  }
+  
+  html {
+    font-family: 'Inter', system-ui, sans-serif;
+  }
+  
+  button {
+    color: inherit;
+  }
+  
+  /* Mobile portrait mode character scaling adjustments */
+  @media (orientation: portrait) and (max-width: 768px) {
+    :root {
+      --mobile-portrait-player-scale: clamp(0.7, 2.2vw + 0.7rem, 1.3);
+      --mobile-portrait-zombie-scale: clamp(0.3, 1vw + 0.3rem, 0.6);
+      --player-ground-offset: 35%;
+      --zombie-ground-offset: 35%;
+    }
+  }
+  
+  @media (orientation: landscape) and (max-width: 768px) {
+    :root {
+      --mobile-landscape-player-scale: clamp(1.1, 3vw + 1.1rem, 1.7);
+      --mobile-landscape-zombie-scale: clamp(0.5, 1.5vw + 0.5rem, 0.8);
+      --player-ground-offset: 10%;
+      --zombie-ground-offset: 10%;
+    }
+  }
+  
+  /* Duplicate default values removed - now defined at top of file */
+  
+  body {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    overflow-x: hidden;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+  }
+}
+
+@layer components {
+  .game-button {
+    @apply px-6 py-3 rounded-xl font-bold text-white shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95 transition-all duration-200 cursor-pointer;
+    min-height: 44px;
+    min-width: 44px;
+    touch-action: manipulation;
+  }
+  
+  .game-button-primary {
+    @apply game-button bg-gradient-to-r from-game-primary to-game-secondary hover:from-orange-600 hover:to-red-600;
+  }
+  
+  .game-card {
+    @apply bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20;
+  }
+  
+  .game-container {
+    @apply min-h-screen p-4 flex items-center justify-center;
+  }
+
+  /* Mobile Touch Optimizations */
+  .touch-target {
+    min-height: 44px;
+    min-width: 44px;
+    touch-action: manipulation;
+  }
+
+  .no-tap-highlight {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Responsive viewport fixes */
+  @supports (-webkit-touch-callout: none) {
+    .game-container {
+      min-height: -webkit-fill-available;
+    }
+  }
+
+  /* Prevent zoom on input focus */
+  input[type="text"], 
+  input[type="number"], 
+  input[type="email"], 
+  input[type="password"], 
+  select, 
+  textarea {
+    font-size: 16px;
+    -webkit-appearance: none;
+    border-radius: 0;
+  }
+
+  /* Enhanced mobile scrolling */
+  .scroll-smooth {
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+  }
+}
