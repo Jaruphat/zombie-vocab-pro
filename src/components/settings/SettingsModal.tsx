@@ -80,7 +80,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
               {/* Sound Volume Slider */}
               {settingsStore.soundEnabled && (
                 <div className="flex items-center justify-between">
-                  <label className="text-gray-700 font-medium text-sm">{t('soundVolume') || 'Volume'}</label>
+                  <label className="text-gray-700 font-medium text-sm">{'Sound Volume'}</label>
                   <div className="flex items-center space-x-3">
                     <span className="text-xs text-gray-500">🔇</span>
                     <input
@@ -135,7 +135,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
               {/* Music Volume Slider */}
               {settingsStore.musicEnabled && (
                 <div className="flex items-center justify-between">
-                  <label className="text-gray-700 font-medium text-sm">{t('musicVolume') || 'Music Volume'}</label>
+                  <label className="text-gray-700 font-medium text-sm">{'Music Volume'}</label>
                   <div className="flex items-center space-x-3">
                     <span className="text-xs text-gray-500">🎵</span>
                     <input

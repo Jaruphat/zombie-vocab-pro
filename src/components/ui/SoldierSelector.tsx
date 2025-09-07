@@ -1,6 +1,6 @@
 import React from 'react';
 import { useSettingsStore } from '../../stores/settingsStore';
-import { BasicSprite } from '../game/sprites/BasicSprite';
+// import { BasicSprite } from '../game/sprites/BasicSprite';
 
 // Component to show preview of specific soldier
 const SoldierPreview: React.FC<{ soldierType: string }> = ({ soldierType }) => {

@@ -20,8 +20,8 @@ interface BasicSpriteProps {
 export const BasicSprite: React.FC<BasicSpriteProps> = ({
   type,
   state,
-  x = 0,
-  y = 0,
+  x: _x = 0,
+  y: _y = 0,
   width = 64,
   height = 64,
   scale = 1,
@@ -32,7 +32,7 @@ export const BasicSprite: React.FC<BasicSpriteProps> = ({
 }) => {
   const [currentFrame, setCurrentFrame] = useState(0);
   const [imageError, setImageError] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
+  // const [isLoading] = useState(true);
 
   // Get soldier type from settings store (soldier1-soldier4, default to soldier1)
   const soldierType = useSettingsStore(state => state.soldierType || 'soldier1');
@@ -172,7 +172,7 @@ export const BasicSprite: React.FC<BasicSpriteProps> = ({
   useEffect(() => {
     setCurrentFrame(0);
     setImageError(false);
-    setIsLoading(true);
+    // setIsLoading(true);
     
     // Handle single frame or static animations
     if (frameInfo.frames.length <= 1) {
@@ -253,11 +253,11 @@ export const BasicSprite: React.FC<BasicSpriteProps> = ({
         src={currentImageSrc}
         alt={`${type}-${state}-${currentFrame}`}
         className={className}
-        onError={(e) => {
+        onError={() => {
           console.warn(`Failed to load sprite: ${currentImageSrc}`);
           setImageError(true);
         }}
-        onLoad={(e) => {
+        onLoad={() => {
           // Successfully loaded
         }}
         style={{

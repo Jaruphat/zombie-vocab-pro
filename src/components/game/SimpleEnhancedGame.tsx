@@ -31,8 +31,8 @@ export const SimpleEnhancedGame: React.FC<SimpleEnhancedGameProps> = ({ scene, o
   
   // Sprite states
   const [playerState, setPlayerState] = useState<'idle' | 'shooting' | 'celebrating' | 'hurt'>('idle');
-  const [zombieStates, setZombieStates] = useState<('idle' | 'walking' | 'attacking' | 'dying' | 'dead')[]>([]);
-  const [spritesLoaded, setSpritesLoaded] = useState(false);
+  // const [zombieStates, setZombieStates] = useState<('idle' | 'walking' | 'attacking' | 'dying' | 'dead')[]>([]);
+  // const [spritesLoaded, setSpritesLoaded] = useState(false);
   
   
   // Background system with 5 backgrounds
@@ -46,7 +46,7 @@ export const SimpleEnhancedGame: React.FC<SimpleEnhancedGameProps> = ({ scene, o
   const [currentBackground, setCurrentBackground] = useState<string>(() => {
     return backgrounds[Math.floor(Math.random() * backgrounds.length)];
   });
-  const [useEmojisFallback, setUseEmojisFallback] = useState(false); // Use sprites as default
+  const [useEmojisFallback] = useState(false); // Use sprites as default
   const [showInstructions, setShowInstructions] = useState(true);
   const [showWordSetsSelector, setShowWordSetsSelector] = useState(false);
   
@@ -74,7 +74,7 @@ export const SimpleEnhancedGame: React.FC<SimpleEnhancedGameProps> = ({ scene, o
   });
 
   // Forward reference for handleTimeUp
-  const handleTimeUpRef = useRef<() => void>();
+  const handleTimeUpRef = useRef<() => void>(() => {});
 
   // Helper function to randomly select zombie variant (excluding variant_1 which has wrong structure)
   const getRandomZombieVariant = useCallback((): ZombieVariant => {
@@ -146,7 +146,7 @@ export const SimpleEnhancedGame: React.FC<SimpleEnhancedGameProps> = ({ scene, o
               // First, zombie attacks
               setTimeout(() => {
                 setZombies(prev => prev.map(z => 
-                  z.id === zombie.id ? { ...z, state: 'attacking', position: newPos } : z
+                  z.id === zombie.id ? { ...z, state: 'attacking' as const, position: newPos } : z
                 ));
               }, 0);
               
@@ -174,7 +174,7 @@ export const SimpleEnhancedGame: React.FC<SimpleEnhancedGameProps> = ({ scene, o
                 }, 1500);
               }, 600); // Wait for attack animation
               
-              return { ...zombie, position: newPos, state: 'attacking' };
+              return { ...zombie, position: newPos, state: 'attacking' as const };
             }
             
             return { ...zombie, position: newPos };
@@ -481,10 +481,11 @@ export const SimpleEnhancedGame: React.FC<SimpleEnhancedGameProps> = ({ scene, o
                 opacity: zombie.state === 'dead' ? 0.3 : 1,
                 // Combined transform: scale + translateY for ground alignment + vertical offset for variety
                 transform: `translateY(calc(80% + ${zombie.verticalOffset}px)) scale(var(--zombie-scale))`,
-                '--zombie-scale': 'var(--mobile-portrait-zombie-scale, var(--mobile-landscape-zombie-scale, clamp(0.4, 1.5vw + 0.5rem, 0.8)))' as string, // Responsive zombie scale
                 transformOrigin: 'center bottom', // Scale from bottom center point
-                transition: zombie.state === 'walking' ? 'none' : 'all 0.3s ease' // Smooth transitions for non-walking states
-              }}
+                transition: zombie.state === 'walking' ? 'none' : 'all 0.3s ease', // Smooth transitions for non-walking states
+                // CSS custom properties
+                ...({['--zombie-scale']: 'var(--mobile-portrait-zombie-scale, var(--mobile-landscape-zombie-scale, clamp(0.4, 1.5vw + 0.5rem, 0.8)))'})
+              } as React.CSSProperties}
             >
               {useEmojisFallback ? (
                 <div className="text-3xl sm:text-6xl">

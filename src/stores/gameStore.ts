@@ -1,10 +1,10 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import type { GameStore, VocabQuestion } from '../types';
+import type { GameStore } from '../types';
 
 export const useGameStore = create<GameStore>()(
   persist(
-    (set, get) => ({
+    (set) => ({
       // Initial state
       scene: 'menu',
       score: 0,
