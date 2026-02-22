@@ -28,21 +28,21 @@ export const WordSetsSelector: React.FC<WordSetsSelectorProps> = ({ isOpen, onCl
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-2 sm:p-4 backdrop-blur-[2px]">
-      <div className="relative mx-auto flex max-h-[90vh] w-full max-w-sm flex-col overflow-hidden rounded-3xl border-2 border-[#6f4e2e] bg-gradient-to-b from-[#5a3926] via-[#432b1d] to-[#2f1d14] shadow-[0_28px_55px_rgba(0,0,0,0.55)] sm:max-w-3xl">
+      <div className="relative mx-auto flex max-h-[90vh] w-full max-w-sm flex-col overflow-hidden rounded-3xl border-2 border-[#d9c5a6]/55 bg-gradient-to-b from-[#fffaf1] via-[#f3e8d3] to-[#e6d6bc] shadow-[0_28px_55px_rgba(0,0,0,0.55)] sm:max-w-3xl">
         <div className="pointer-events-none absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_20%_8%,rgba(255,255,255,0.35),transparent_34%),radial-gradient(circle_at_80%_0%,rgba(255,255,255,0.2),transparent_38%)]" />
 
-        <div className="relative border-b border-[#8f6a40]/60 px-3 py-3 sm:px-5 sm:py-4">
+        <div className="relative border-b border-[#e8dbc5]/45 px-3 py-3 sm:px-5 sm:py-4">
           <div className="flex items-center justify-between gap-3">
             <div>
-              <h2 className="text-lg font-black uppercase tracking-wide text-[#fff7df] sm:text-2xl">
+              <h2 className="text-lg font-black uppercase tracking-wide text-[#4a3a28] sm:text-2xl">
                 {t('selectWordSets')}
               </h2>
-              <p className="text-xs text-[#f4ddaa] sm:text-sm">{t('chooseWordSetsDescription')}</p>
+              <p className="text-xs text-[#6b5843] sm:text-sm">{t('chooseWordSetsDescription')}</p>
             </div>
             <button
               onClick={onClose}
               type="button"
-              className="relative h-10 w-10 shrink-0 overflow-hidden rounded-xl border border-[#9f7f4f] bg-[#2a1a11] shadow-md transition hover:brightness-110"
+              className="relative h-10 w-10 shrink-0 overflow-hidden rounded-xl border border-[#e8dbc5]/45 bg-[#d4be98] shadow-md transition hover:brightness-110"
               aria-label="Close word set selector"
             >
               <img
@@ -67,8 +67,8 @@ export const WordSetsSelector: React.FC<WordSetsSelectorProps> = ({ isOpen, onCl
                   onClick={() => handleSetToggle(wordSet.id)}
                   className={`relative rounded-2xl border p-3 text-left transition sm:p-4 ${
                     isSelected
-                      ? 'border-emerald-300 bg-[#fff8df] shadow-[0_10px_20px_rgba(0,0,0,0.2)]'
-                      : 'border-[#9f7c4f] bg-[#f2e5c7] hover:bg-[#f7edd4]'
+                      ? 'border-emerald-300 bg-[#fff7e8] shadow-[0_10px_20px_rgba(0,0,0,0.2)]'
+                      : 'border-[#dcc9a9] bg-[#f8efe1] hover:bg-[#f2e6d3]'
                   }`}
                 >
                   <div className="absolute right-3 top-3">
@@ -76,7 +76,7 @@ export const WordSetsSelector: React.FC<WordSetsSelectorProps> = ({ isOpen, onCl
                       className={`flex h-6 w-6 items-center justify-center rounded-full border text-xs font-black ${
                         isSelected
                           ? 'border-emerald-700 bg-emerald-500 text-white'
-                          : 'border-[#856338] bg-[#d7bc8a] text-[#5a3926]'
+                          : 'border-[#d2bb96] bg-[#f2e4cf] text-[#6d5a45]'
                       }`}
                     >
                       {isSelected ? 'OK' : ''}
@@ -92,24 +92,24 @@ export const WordSetsSelector: React.FC<WordSetsSelectorProps> = ({ isOpen, onCl
                         {wordSet.icon}
                       </div>
                       <div>
-                        <h3 className="font-black text-[#3b2618]">{wordSet.name}</h3>
-                        <p className="text-xs font-semibold text-[#6b4a2d]">{wordSet.words.length} words</p>
+                        <h3 className="font-black text-[#4a3a28]">{wordSet.name}</h3>
+                        <p className="text-xs font-semibold text-[#6b5843]">{wordSet.words.length} words</p>
                       </div>
                     </div>
 
-                    <p className="mb-2 text-sm text-[#5d4228]">{wordSet.description}</p>
+                    <p className="mb-2 text-sm text-[#6b5843]">{wordSet.description}</p>
 
                     <div className="flex flex-wrap gap-1">
                       {wordSet.words.slice(0, 4).map((word) => (
                         <span
                           key={word.id}
-                          className="rounded-md border border-[#d9c69e] bg-[#fff9eb] px-2 py-0.5 text-[11px] font-semibold text-[#63452a]"
+                          className="rounded-md border border-[#efe5d3] bg-white px-2 py-0.5 text-[11px] font-semibold text-[#6f5b46]"
                         >
                           {word.word}
                         </span>
                       ))}
                       {wordSet.words.length > 4 && (
-                        <span className="rounded-md border border-[#d9c69e] bg-[#fff9eb] px-2 py-0.5 text-[11px] font-semibold text-[#7a5737]">
+                        <span className="rounded-md border border-[#efe5d3] bg-white px-2 py-0.5 text-[11px] font-semibold text-[#866f56]">
                           +{wordSet.words.length - 4}
                         </span>
                       )}
@@ -120,11 +120,11 @@ export const WordSetsSelector: React.FC<WordSetsSelectorProps> = ({ isOpen, onCl
             })}
           </div>
 
-          <div className="rounded-2xl border border-[#8f6a40] bg-[#f6efd8]/95 p-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.55)] sm:p-4">
-            <h4 className="mb-2 text-sm font-black uppercase tracking-wide text-[#3d281a]">
+          <div className="rounded-2xl border border-[#eadfcb] bg-[#fffcf7]/96 p-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.55)] sm:p-4">
+            <h4 className="mb-2 text-sm font-black uppercase tracking-wide text-[#4a3a28]">
               {t('selectedSetsCount')} ({vocabStore.selectedWordSets.length})
             </h4>
-            <p className="text-sm font-semibold text-[#5d4228]">
+            <p className="text-sm font-semibold text-[#6b5843]">
               Total words: {vocabStore.getActiveWords().length}
             </p>
             <div className="mt-2 flex flex-wrap gap-2">
@@ -134,7 +134,7 @@ export const WordSetsSelector: React.FC<WordSetsSelectorProps> = ({ isOpen, onCl
                 return (
                   <span
                     key={setId}
-                    className="rounded-full border border-[#c3a06e] bg-[#fff6df] px-2.5 py-1 text-xs font-bold text-[#5a3926]"
+                    className="rounded-full border border-[#e2d5bf] bg-white px-2.5 py-1 text-xs font-bold text-[#6d5a45]"
                   >
                     {wordSet.icon} {wordSet.name.includes(': ') ? wordSet.name.split(': ')[1] : wordSet.name}
                   </span>
@@ -144,7 +144,7 @@ export const WordSetsSelector: React.FC<WordSetsSelectorProps> = ({ isOpen, onCl
           </div>
         </div>
 
-        <div className="relative shrink-0 border-t border-[#8f6a40]/60 px-3 py-3 sm:px-5 sm:py-4">
+        <div className="relative shrink-0 border-t border-[#e8dbc5]/45 px-3 py-3 sm:px-5 sm:py-4">
           <div className="flex flex-wrap items-center justify-end gap-2 sm:gap-3">
             <GameButton
               variant="secondary"
@@ -162,3 +162,5 @@ export const WordSetsSelector: React.FC<WordSetsSelectorProps> = ({ isOpen, onCl
     </div>
   );
 };
+
+

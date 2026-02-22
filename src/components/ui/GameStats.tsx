@@ -14,7 +14,7 @@ interface GameStatsProps {
 interface StatPillProps {
   value: string | number;
   iconSrc: string;
-  fillSrc: string;
+  fillClass: string;
   minWidth: string;
   label: string;
   fillPercent?: number;
@@ -23,36 +23,26 @@ interface StatPillProps {
 const StatPill: React.FC<StatPillProps> = ({
   value,
   iconSrc,
-  fillSrc,
+  fillClass,
   minWidth,
   label,
   fillPercent = 100,
 }) => (
-  <div className={`relative h-9 sm:h-10 ${minWidth}`}>
-    <img
-      src="/assets/ui/jungle/load_bar/bg.png"
-      alt=""
-      className="absolute inset-0 w-full h-full object-fill select-none pointer-events-none"
-      draggable={false}
-    />
-    <div className="absolute inset-[3px] rounded-full overflow-hidden pointer-events-none">
-      <img
-        src={fillSrc}
-        alt=""
-        className="absolute inset-y-0 left-0 h-full object-fill opacity-90 select-none transition-all duration-150"
+  <div className={`relative h-9 overflow-hidden rounded-full border border-[#b4946d] bg-[#bda382] ${minWidth}`}>
+    <div className="absolute inset-[3px] rounded-full overflow-hidden pointer-events-none bg-[#cbb394]">
+      <div
+        className={`absolute inset-y-0 left-0 rounded-full transition-all duration-150 ${fillClass}`}
         style={{ width: `${Math.max(0, Math.min(100, fillPercent))}%` }}
-        draggable={false}
       />
     </div>
     <img
       src={iconSrc}
       alt=""
-      className="absolute left-[-5px] sm:left-[-6px] top-1/2 -translate-y-1/2 w-9 h-9 sm:w-10 sm:h-10 object-contain select-none pointer-events-none"
+      className="absolute left-0.5 top-1/2 h-8 w-8 -translate-y-1/2 object-contain select-none pointer-events-none"
       draggable={false}
     />
     <span
-      className="absolute inset-0 flex items-center justify-center pl-8 sm:pl-9 pr-3 font-black text-white text-xs sm:text-sm tabular-nums tracking-wide"
-      style={{ textShadow: '0 2px 0 rgba(0,0,0,0.35)' }}
+      className="absolute inset-0 flex items-center justify-center pl-8 pr-3 font-black text-white text-xs sm:text-sm tabular-nums tracking-wide"
       aria-label={label}
     >
       {value}
@@ -75,24 +65,24 @@ export const GameStats: React.FC<GameStatsProps> = ({
   const hpTotal = typeof hpMax === 'number' && hpMax > 0 ? hpMax : 100;
   const hpPercent = typeof hpValue === 'number' ? (hpValue / hpTotal) * 100 : 100;
   const hpFillSrc = hpPercent > 60
-    ? '/assets/ui/jungle/load_bar/1.png'
+    ? 'bg-gradient-to-r from-[#26d3d9] to-[#1dbec4]'
     : hpPercent > 30
-      ? '/assets/ui/jungle/load_bar/3.png'
-      : '/assets/ui/jungle/load_bar/2.png';
+      ? 'bg-gradient-to-r from-[#facc15] to-[#eab308]'
+      : 'bg-gradient-to-r from-[#fb7185] to-[#ef4444]';
 
   return (
     <div className="flex items-center gap-1 sm:gap-2 whitespace-nowrap">
       <StatPill
         value={coins}
         iconSrc="/assets/ui/jungle/upgrade/luck.png"
-        fillSrc="/assets/ui/jungle/load_bar/1.png"
+        fillClass="bg-gradient-to-r from-[#26d3d9] to-[#1dbec4]"
         minWidth={isCompact ? 'min-w-[54px] sm:min-w-[98px]' : 'min-w-[72px] sm:min-w-[104px]'}
         label="coins"
       />
       <StatPill
         value={lives}
         iconSrc="/assets/ui/jungle/upgrade/heart.png"
-        fillSrc="/assets/ui/jungle/load_bar/3.png"
+        fillClass="bg-gradient-to-r from-[#fb7185] to-[#ef4444]"
         minWidth={isCompact ? 'min-w-[48px] sm:min-w-[86px]' : 'min-w-[62px] sm:min-w-[88px]'}
         label="lives"
       />
@@ -100,7 +90,7 @@ export const GameStats: React.FC<GameStatsProps> = ({
         <StatPill
           value={showFullLevel ? `HP ${hpValue}/${hpTotal}` : hpValue}
           iconSrc="/assets/ui/jungle/upgrade/heart.png"
-          fillSrc={hpFillSrc}
+          fillClass={hpFillSrc}
           minWidth={isCompact ? 'min-w-[64px] sm:min-w-[118px]' : 'min-w-[112px] sm:min-w-[146px]'}
           label="hp"
           fillPercent={hpPercent}
@@ -109,17 +99,18 @@ export const GameStats: React.FC<GameStatsProps> = ({
       <StatPill
         value={score}
         iconSrc="/assets/ui/jungle/upgrade/star.png"
-        fillSrc="/assets/ui/jungle/load_bar/3.png"
+        fillClass="bg-gradient-to-r from-[#facc15] to-[#eab308]"
         minWidth={isCompact ? 'min-w-[62px] sm:min-w-[112px]' : 'min-w-[78px] sm:min-w-[120px]'}
         label="score"
       />
       <StatPill
         value={showFullLevel ? `${levelText} ${level}` : level}
         iconSrc="/assets/ui/jungle/upgrade/time.png"
-        fillSrc="/assets/ui/jungle/load_bar/2.png"
+        fillClass="bg-gradient-to-r from-[#84cc16] to-[#65a30d]"
         minWidth={showFullLevel ? 'min-w-[84px] sm:min-w-[128px]' : 'min-w-[46px] sm:min-w-[84px]'}
         label="level"
       />
     </div>
   );
 };
+

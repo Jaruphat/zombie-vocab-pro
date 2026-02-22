@@ -16,10 +16,10 @@ const LANGUAGE_MODE_OPTIONS: Array<{
   label: string;
   desc: string;
 }> = [
-  { value: 'en-to-th', label: 'EN->TH', desc: 'EN to TH' },
-  { value: 'th-to-en', label: 'TH->EN', desc: 'TH to EN' },
-  { value: 'mixed', label: 'MIX', desc: 'Mixed' },
-];
+    { value: 'en-to-th', label: 'EN->TH', desc: 'EN to TH' },
+    { value: 'th-to-en', label: 'TH->EN', desc: 'TH to EN' },
+    { value: 'mixed', label: 'MIX', desc: 'Mixed' },
+  ];
 
 const DIFFICULTY_SPEED_MULTIPLIER: Record<GameSettings['difficulty'], number> = {
   easy: 0.92,
@@ -41,14 +41,16 @@ const ZOMBIE_ATTACK_DAMAGE: Record<GameSettings['difficulty'], number> = {
 };
 
 const SOLDIER_TYPES: GameSettings['soldierType'][] = ['soldier1', 'soldier2', 'soldier3', 'soldier4'];
-const ZOMBIE_VARIANTS_POOL: ZombieVariant[] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
+// Keep only full-body character variants in spawn pool.
+// Variants 1-2 are legacy flat sprites that look out of place in current gameplay.
+const ZOMBIE_VARIANTS_POOL: ZombieVariant[] = [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
 const SOLDIER_GROUND_LANE_OFFSET_PX: Record<GameSettings['soldierType'], number> = {
-  soldier1: 12,
-  soldier2: 8,
-  soldier3: 12,
-  soldier4: 12,
+  soldier1: 60,
+  soldier2: 22,
+  soldier3: 60,
+  soldier4: 60,
 };
-const ZOMBIE_GROUND_LANE_OFFSET_PX = 12;
+const ZOMBIE_GROUND_LANE_OFFSET_PX = 60;
 const SOLDIER_MUZZLE_BOTTOM_PCT: Record<GameSettings['soldierType'], string> = {
   soldier1: '42%',
   soldier2: '37%',
@@ -246,25 +248,25 @@ export const SimpleEnhancedGame: React.FC<SimpleEnhancedGameProps> = ({ scene, o
   const { t } = useTranslation();
   const audioSystem = AudioSystem.getInstance();
   const selectedWordSetsKey = vocabStore.selectedWordSets.join('|');
-  
+
   const [currentQuestion, setCurrentQuestion] = useState<VocabQuestion | null>(null);
   const [questionTimeRemaining, setQuestionTimeRemaining] = useState(0);
   const [showResult, setShowResult] = useState<{
     correct: boolean;
     points: number;
   } | null>(null);
-  
+
   // Sprite states
   const [playerState, setPlayerState] = useState<'idle' | 'walking' | 'running' | 'melee' | 'shooting' | 'celebrating' | 'hurt'>('idle');
   const [playerShootStyle, setPlayerShootStyle] = useState<PlayerShootStyle>('base');
   // const [zombieStates, setZombieStates] = useState<('idle' | 'walking' | 'attacking' | 'dying' | 'dead')[]>([]);
   // const [spritesLoaded, setSpritesLoaded] = useState(false);
-  
-  
+
+
   // Background system with 5 backgrounds
   const backgrounds = [
     '/assets/backgrounds/bg1.png',
-    '/assets/backgrounds/bg2.png', 
+    '/assets/backgrounds/bg2.png',
     '/assets/backgrounds/bg3.png',
     '/assets/backgrounds/bg4.png',
     '/assets/backgrounds/bg5.png'
@@ -275,7 +277,7 @@ export const SimpleEnhancedGame: React.FC<SimpleEnhancedGameProps> = ({ scene, o
   const [useEmojisFallback] = useState(false); // Use sprites as default
   const [showInstructions, setShowInstructions] = useState(true);
   const [showWordSetsSelector, setShowWordSetsSelector] = useState(false);
-  
+
   // Dynamic zombie management
   const [zombies, setZombies] = useState<Array<{
     id: string;
@@ -305,7 +307,7 @@ export const SimpleEnhancedGame: React.FC<SimpleEnhancedGameProps> = ({ scene, o
   const shootRecoveryTimeoutRef = useRef<number | null>(null);
   const spawnTimeoutRef = useRef<number | null>(null);
   const multipleChoiceSolvedWordIdsRef = useRef<Set<string>>(new Set());
-  
+
   // Use refs to store current values
   const currentQuestionRef = useRef(currentQuestion);
   const questionTimeRemainingRef = useRef(questionTimeRemaining);
@@ -324,7 +326,7 @@ export const SimpleEnhancedGame: React.FC<SimpleEnhancedGameProps> = ({ scene, o
   }, [onPlayerHpChange, playerHp]);
 
   // Forward reference for handleTimeUp
-  const handleTimeUpRef = useRef<() => void>(() => {});
+  const handleTimeUpRef = useRef<() => void>(() => { });
   const generateQuestionRef = useRef<(() => VocabQuestion) | null>(null);
 
   // Randomly select from all available zombie variants.
@@ -494,7 +496,7 @@ export const SimpleEnhancedGame: React.FC<SimpleEnhancedGameProps> = ({ scene, o
       verticalOffset: -2 + Math.random() * 4, // Keep lane depth subtle so feet stay on the same ground line
       ...deathPose
     };
-    
+
     setZombies(prev => [...prev, newZombie]);
   }, [getRandomDeathPose, getRandomZombieVariant]);
 
@@ -632,7 +634,7 @@ export const SimpleEnhancedGame: React.FC<SimpleEnhancedGameProps> = ({ scene, o
 
   const generateQuestion = useCallback((): VocabQuestion => {
     const words = vocabStore.getActiveWords();
-    
+
     if (words.length === 0) {
       // Fallback words if none available
       const fallbackWords = [
@@ -643,18 +645,18 @@ export const SimpleEnhancedGame: React.FC<SimpleEnhancedGameProps> = ({ scene, o
       ];
       words.push(...fallbackWords);
     }
-    
+
     // Determine language direction
-    const direction = settingsStore.languageDirection === 'mixed' 
+    const direction = settingsStore.languageDirection === 'mixed'
       ? (Math.random() > 0.5 ? 'en-to-th' : 'th-to-en')
       : settingsStore.languageDirection;
-    
+
     // Determine question type
     const availableTypes = Object.entries(settingsStore.questionTypes)
       .filter(([, enabled]) => enabled)
       .map(([type]) => type as 'multipleChoice' | 'typing' | 'spelling' | 'letterArrangement');
-    
-    const questionType = availableTypes.length > 0 
+
+    const questionType = availableTypes.length > 0
       ? availableTypes[Math.floor(Math.random() * availableTypes.length)]
       : 'multipleChoice';
 
@@ -667,14 +669,14 @@ export const SimpleEnhancedGame: React.FC<SimpleEnhancedGameProps> = ({ scene, o
     }
 
     const word = candidateWords[Math.floor(Math.random() * candidateWords.length)];
-    
+
     // Generate question based on direction and type
     const questionWord = direction === 'en-to-th' ? word.word : word.meaning;
     const correctAnswer = direction === 'en-to-th' ? word.meaning : word.word;
-    
+
     let options: string[] = [];
     let scrambledLetters: string[] = [];
-    
+
     if (questionType === 'multipleChoice') {
       // Generate wrong options from the same direction
       const wrongOptions = words
@@ -682,22 +684,22 @@ export const SimpleEnhancedGame: React.FC<SimpleEnhancedGameProps> = ({ scene, o
         .sort(() => Math.random() - 0.5)
         .slice(0, 3)
         .map(w => direction === 'en-to-th' ? w.meaning : w.word);
-      
+
       // Ensure we have enough options
       while (wrongOptions.length < 3) {
-        wrongOptions.push(direction === 'en-to-th' 
+        wrongOptions.push(direction === 'en-to-th'
           ? 'ตัวเลือกผิด ' + (wrongOptions.length + 1)
           : 'Wrong ' + (wrongOptions.length + 1)
         );
       }
-      
+
       options = [correctAnswer, ...wrongOptions].sort(() => Math.random() - 0.5);
     } else if (questionType === 'letterArrangement') {
       // Scramble letters for letter arrangement mode
       const letters = correctAnswer.split('');
       scrambledLetters = [...letters].sort(() => Math.random() - 0.5);
     }
-    
+
     return {
       id: crypto.randomUUID(),
       type: questionType,
@@ -907,10 +909,10 @@ export const SimpleEnhancedGame: React.FC<SimpleEnhancedGameProps> = ({ scene, o
 
   const handleAnswer = (answer: string) => {
     if (!currentQuestion) return;
-    
+
     const correct = answer === currentQuestion.correctAnswer;
     const points = correct ? 100 * gameStore.level : 0;
-    
+
     if (correct) {
       gameStore.addScore(points);
 
@@ -938,7 +940,7 @@ export const SimpleEnhancedGame: React.FC<SimpleEnhancedGameProps> = ({ scene, o
           rollRandomSoldierIfEnabled(true);
         }
       }
-      
+
       audioSystem.playCorrectAnswerSound();
 
       const targetZombie = zombies
@@ -981,7 +983,7 @@ export const SimpleEnhancedGame: React.FC<SimpleEnhancedGameProps> = ({ scene, o
           }, 230);
         }
       }
-      
+
       // Generate next question immediately - single state update
       if (useGameStore.getState().lives > 0) {
         queueNextQuestion();
@@ -991,10 +993,10 @@ export const SimpleEnhancedGame: React.FC<SimpleEnhancedGameProps> = ({ scene, o
     } else {
       const remainingLives = removeLifeAndGetRemainingLives();
       resetPlayerHp();
-      
+
       // Play wrong answer sound
       audioSystem.playWrongAnswerSound();
-      
+
       // Batch all wrong answer state updates
       clearShootRecoveryTimeout();
       setPlayerShootStyle('base');
@@ -1002,7 +1004,7 @@ export const SimpleEnhancedGame: React.FC<SimpleEnhancedGameProps> = ({ scene, o
       setZombies(prev => prev.map(z => z.state === 'attacking' ? { ...z, state: 'walking' } : z));
       setShowResult({ correct, points });
       clearActiveQuestion();
-      
+
       // Handle wrong answer recovery
       setTimeout(() => {
         setShowResult(null);
@@ -1058,7 +1060,7 @@ export const SimpleEnhancedGame: React.FC<SimpleEnhancedGameProps> = ({ scene, o
 
   const handleZombieAnimationComplete = (zombieId: string, state: string) => {
     if (state === 'death-complete') {
-      setZombies(prev => prev.map(z => 
+      setZombies(prev => prev.map(z =>
         z.id === zombieId ? { ...z, state: 'dead' } : z
       ));
       const corpseDurationMs = 1400 + Math.random() * 900;
@@ -1096,19 +1098,19 @@ export const SimpleEnhancedGame: React.FC<SimpleEnhancedGameProps> = ({ scene, o
           willChange: 'transform',
         }}
       >
-        
+
         {/* Background Scene */}
         <div className="absolute inset-0 overflow-hidden">
           {/* Main Graveyard Background */}
-          <img 
-            src={currentBackground} 
-            alt="graveyard background" 
+          <img
+            src={currentBackground}
+            alt="graveyard background"
             className="absolute inset-0 w-full h-full object-cover"
             style={{
               objectPosition: 'center 78%'
             }}
           />
-          
+
         </div>
 
         {/* Projectile effects layer */}
@@ -1185,106 +1187,106 @@ export const SimpleEnhancedGame: React.FC<SimpleEnhancedGameProps> = ({ scene, o
         </div>
 
         {/* Player positioned at left side - aligned with ground line */}
-        <div 
-            className="absolute left-4 sm:left-8 z-30"
-            style={{ 
-              position: 'absolute', 
-              bottom: playerGroundBottom,
-              left: 'clamp(16px, 4vw, 32px)', 
-              zIndex: 30, 
-              transform: `translateX(${isRecoiling ? '-12px' : '0px'}) translateY(var(--player-ground-nudge)) scale(var(--player-scale))`,
-              transition: 'transform 95ms cubic-bezier(0.22, 0.61, 0.36, 1)',
-              '--player-scale': 'var(--mobile-portrait-player-scale, var(--mobile-landscape-player-scale, clamp(0.8, 3vw + 1.5rem, 1.8)))',
-              transformOrigin: 'center bottom',
-              filter: 'drop-shadow(0 8px 6px rgba(8,12,30,0.45))'
+        <div
+          className="absolute left-4 sm:left-8 z-30"
+          style={{
+            position: 'absolute',
+            bottom: playerGroundBottom,
+            left: 'clamp(16px, 4vw, 32px)',
+            zIndex: 30,
+            transform: `translateX(${isRecoiling ? '-12px' : '0px'}) translateY(var(--player-ground-nudge)) scale(var(--player-scale))`,
+            transition: 'transform 95ms cubic-bezier(0.22, 0.61, 0.36, 1)',
+            '--player-scale': 'var(--mobile-portrait-player-scale, var(--mobile-landscape-player-scale, clamp(0.8, 3vw + 1.5rem, 1.8)))',
+            transformOrigin: 'center bottom',
+            filter: 'drop-shadow(0 8px 6px rgba(8,12,30,0.45))'
+          } as React.CSSProperties}
+        >
+          {useEmojisFallback ? (
+            <div className="text-2xl sm:text-4xl font-black text-white/90">PLAYER</div>
+          ) : (
+            <PlayerSprite
+              x={0}
+              y={0}
+              scale={settingsStore.soldierType === 'soldier2' ? 2.5 : 2.0} // Scale back to normal for Bravo
+              state={playerState}
+              shootingStyle={playerShootStyle}
+              flipX={false}
+              onAnimationComplete={handlePlayerAnimationComplete}
+            />
+          )}
+        </div>
+
+        {/* Zombies positioned based on their movement */}
+        {zombies.map((zombie) => (
+          <div
+            key={zombie.id}
+            className="absolute cursor-pointer hover:scale-110 transform transition-all duration-200 select-none z-30"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              if (zombie.state !== 'dying' && zombie.state !== 'dead') {
+                if (!currentQuestion) {
+                  const question = generateQuestion();
+                  currentQuestionRef.current = question;
+                  setCurrentQuestion(question);
+                  setQuestionTimeRemaining(question.timeLimit);
+                  setShowResult(null);
+                }
+              }
+            }}
+            title={zombie.state === 'dead' ? 'Defeated!' : zombie.state === 'dying' ? 'Dying...' : 'Click to fight!'}
+            style={{
+              left: `${zombie.position}%`, // Use percentage positioning
+              bottom: zombieGroundBottom,
+              pointerEvents: zombie.state === 'dying' || zombie.state === 'dead' ? 'none' : 'auto',
+              userSelect: 'none',
+              opacity: zombie.state === 'dead' ? 0.58 : zombie.state === 'dying' ? 0.9 : 1,
+              // Keep sprite death frames as main animation, add subtle random body direction/depth for variety
+              transform: zombie.state === 'dying'
+                ? `perspective(900px) translateX(${((zombie.deathDirection === 'left' ? -1 : 1) * zombie.deathSkid * 0.52).toFixed(1)}px) translateY(calc(var(--zombie-ground-nudge) + ${(zombie.verticalOffset + zombie.deathDrop * 0.35).toFixed(1)}px)) rotate(${(zombie.deathTilt * 0.66).toFixed(1)}deg) rotateX(${(zombie.deathPitch * 0.72).toFixed(1)}deg) scale(${zombie.deathDepth === 'front' ? 1.03 : 0.98}) scale(var(--zombie-scale))`
+                : zombie.state === 'dead'
+                  ? `perspective(900px) translateX(${((zombie.deathDirection === 'left' ? -1 : 1) * zombie.deathSkid).toFixed(1)}px) translateY(calc(var(--zombie-ground-nudge) + ${(zombie.verticalOffset + zombie.deathDrop).toFixed(1)}px)) rotate(${zombie.deathTilt.toFixed(1)}deg) rotateX(${zombie.deathPitch.toFixed(1)}deg) scale(${zombie.deathDepth === 'front' ? 1.06 : 0.94}) scale(var(--zombie-scale))`
+                  : `translateY(calc(var(--zombie-ground-nudge) + ${zombie.verticalOffset.toFixed(1)}px)) scale(var(--zombie-scale))`,
+              filter: zombie.state === 'dead'
+                ? `${zombie.deathDepth === 'front' ? 'brightness(0.74) saturate(0.8)' : 'brightness(0.88) saturate(0.92)'} drop-shadow(0 8px 6px rgba(5,7,18,0.5))`
+                : 'drop-shadow(0 8px 6px rgba(5,7,18,0.42))',
+              transformOrigin: 'center bottom', // Scale from bottom center point
+              transition: zombie.state === 'walking'
+                ? 'none'
+                : zombie.state === 'dying'
+                  ? 'transform 520ms cubic-bezier(0.22, 0.61, 0.36, 1), opacity 520ms ease'
+                  : 'transform 340ms ease, opacity 520ms ease, filter 420ms ease', // Smooth transitions for non-walking states
+              // CSS custom properties
+              ...({ ['--zombie-scale']: 'var(--mobile-portrait-zombie-scale, var(--mobile-landscape-zombie-scale, clamp(0.4, 1.5vw + 0.5rem, 0.8)))' })
             } as React.CSSProperties}
           >
             {useEmojisFallback ? (
-              <div className="text-2xl sm:text-4xl font-black text-white/90">PLAYER</div>
-            ) : (
-              <PlayerSprite
-                x={0}
-                y={0}
-                scale={settingsStore.soldierType === 'soldier2' ? 2.5 : 2.0} // Scale back to normal for Bravo
-                state={playerState}
-                shootingStyle={playerShootStyle}
-                flipX={false}
-                onAnimationComplete={handlePlayerAnimationComplete}
-              />
-            )}
-        </div>
-          
-        {/* Zombies positioned based on their movement */}
-          {zombies.map((zombie) => (
-            <div
-              key={zombie.id}
-              className="absolute cursor-pointer hover:scale-110 transform transition-all duration-200 select-none z-30"
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                if (zombie.state !== 'dying' && zombie.state !== 'dead') {
-                  if (!currentQuestion) {
-                    const question = generateQuestion();
-                    currentQuestionRef.current = question;
-                    setCurrentQuestion(question);
-                    setQuestionTimeRemaining(question.timeLimit);
-                    setShowResult(null);
-                  }
-                }
-              }}
-              title={zombie.state === 'dead' ? 'Defeated!' : zombie.state === 'dying' ? 'Dying...' : 'Click to fight!'}
-              style={{ 
-                left: `${zombie.position}%`, // Use percentage positioning
-                bottom: zombieGroundBottom,
-                pointerEvents: zombie.state === 'dying' || zombie.state === 'dead' ? 'none' : 'auto', 
-                userSelect: 'none',
-                opacity: zombie.state === 'dead' ? 0.58 : zombie.state === 'dying' ? 0.9 : 1,
-                // Keep sprite death frames as main animation, add subtle random body direction/depth for variety
-                transform: zombie.state === 'dying'
-                  ? `perspective(900px) translateX(${((zombie.deathDirection === 'left' ? -1 : 1) * zombie.deathSkid * 0.52).toFixed(1)}px) translateY(calc(var(--zombie-ground-nudge) + ${(zombie.verticalOffset + zombie.deathDrop * 0.35).toFixed(1)}px)) rotate(${(zombie.deathTilt * 0.66).toFixed(1)}deg) rotateX(${(zombie.deathPitch * 0.72).toFixed(1)}deg) scale(${zombie.deathDepth === 'front' ? 1.03 : 0.98}) scale(var(--zombie-scale))`
-                  : zombie.state === 'dead'
-                    ? `perspective(900px) translateX(${((zombie.deathDirection === 'left' ? -1 : 1) * zombie.deathSkid).toFixed(1)}px) translateY(calc(var(--zombie-ground-nudge) + ${(zombie.verticalOffset + zombie.deathDrop).toFixed(1)}px)) rotate(${zombie.deathTilt.toFixed(1)}deg) rotateX(${zombie.deathPitch.toFixed(1)}deg) scale(${zombie.deathDepth === 'front' ? 1.06 : 0.94}) scale(var(--zombie-scale))`
-                    : `translateY(calc(var(--zombie-ground-nudge) + ${zombie.verticalOffset.toFixed(1)}px)) scale(var(--zombie-scale))`,
-                filter: zombie.state === 'dead'
-                  ? `${zombie.deathDepth === 'front' ? 'brightness(0.74) saturate(0.8)' : 'brightness(0.88) saturate(0.92)'} drop-shadow(0 8px 6px rgba(5,7,18,0.5))`
-                  : 'drop-shadow(0 8px 6px rgba(5,7,18,0.42))',
-                transformOrigin: 'center bottom', // Scale from bottom center point
-                transition: zombie.state === 'walking'
-                  ? 'none'
+              <div className={`text-3xl sm:text-6xl ${zombie.state === 'walking' ? 'zombie-walk-bob' : ''}`}>
+                {zombie.state === 'dead'
+                  ? 'X'
                   : zombie.state === 'dying'
-                    ? 'transform 520ms cubic-bezier(0.22, 0.61, 0.36, 1), opacity 520ms ease'
-                    : 'transform 340ms ease, opacity 520ms ease, filter 420ms ease', // Smooth transitions for non-walking states
-                // CSS custom properties
-                ...({['--zombie-scale']: 'var(--mobile-portrait-zombie-scale, var(--mobile-landscape-zombie-scale, clamp(0.4, 1.5vw + 0.5rem, 0.8)))'})
-              } as React.CSSProperties}
-            >
-              {useEmojisFallback ? (
-                <div className={`text-3xl sm:text-6xl ${zombie.state === 'walking' ? 'zombie-walk-bob' : ''}`}>
-                  {zombie.state === 'dead'
-                    ? 'X'
-                    : zombie.state === 'dying'
-                      ? 'KO'
-                      : zombie.state === 'attacking'
-                        ? 'ATK'
-                        : zombie.state === 'walking'
-                          ? 'WALK'
-                          : 'Z'}
-                </div>
-              ) : (
-                <div className={zombie.state === 'walking' ? 'zombie-walk-bob' : ''}>
-                  <ZombieSprite
-                    x={0}
-                    y={0}
-                    scale={1.8} // Reduced base scale, now handled by CSS transform
-                    state={zombie.state}
-                    variant={zombie.variant} // Pass the random variant
-                    flipX={true} // Flip horizontally to face forward
-                    onAnimationComplete={(animState) => handleZombieAnimationComplete(zombie.id, animState)}
-                  />
-                </div>
-              )}
-            </div>
-          ))}
+                    ? 'KO'
+                    : zombie.state === 'attacking'
+                      ? 'ATK'
+                      : zombie.state === 'walking'
+                        ? 'WALK'
+                        : 'Z'}
+              </div>
+            ) : (
+              <div className={zombie.state === 'walking' ? 'zombie-walk-bob' : ''}>
+                <ZombieSprite
+                  x={0}
+                  y={0}
+                  scale={1.8} // Reduced base scale, now handled by CSS transform
+                  state={zombie.state}
+                  variant={zombie.variant} // Pass the random variant
+                  flipX={true} // Flip horizontally to face forward
+                  onAnimationComplete={(animState) => handleZombieAnimationComplete(zombie.id, animState)}
+                />
+              </div>
+            )}
+          </div>
+        ))}
 
 
         {/* Combat Instructions */}
@@ -1293,19 +1295,19 @@ export const SimpleEnhancedGame: React.FC<SimpleEnhancedGameProps> = ({ scene, o
             className="absolute inset-0 flex items-center justify-center rounded-xl bg-black/45 p-2 sm:p-3"
             data-testid="combat-instructions"
           >
-            <div className="relative w-full max-w-sm overflow-hidden rounded-3xl border-2 border-[#6f4e2e] bg-gradient-to-b from-[#5a3926] via-[#432b1d] to-[#2f1d14] p-3 text-[#fff7df] shadow-[0_22px_45px_rgba(0,0,0,0.55)] sm:max-w-2xl sm:p-5">
+            <div className="relative w-full max-w-sm overflow-hidden rounded-3xl border-2 border-[#d9c5a6]/55 bg-gradient-to-b from-[#fffaf1] via-[#f3e8d3] to-[#e6d6bc] p-3 text-[#4a3a28] shadow-[0_22px_45px_rgba(0,0,0,0.55)] sm:max-w-2xl sm:p-5">
               <div className="pointer-events-none absolute inset-0 opacity-25 bg-[radial-gradient(circle_at_20%_0%,rgba(255,255,255,0.36),transparent_34%),radial-gradient(circle_at_88%_20%,rgba(255,255,255,0.16),transparent_40%)]" />
 
-              <div className="game-scroll relative max-h-[82vh] space-y-3 overflow-y-auto rounded-2xl border border-[#8f6a40] bg-[#f6efd8]/95 p-3 text-[#3d281a] sm:space-y-4 sm:p-4">
+              <div className="game-scroll relative max-h-[82vh] space-y-3 overflow-y-auto rounded-2xl border border-[#eadfcb] bg-[#fffcf7]/96 p-3 text-[#4a3a28] sm:space-y-4 sm:p-4">
                 <div className="text-center">
                   <h3 className="text-xl font-black uppercase tracking-wide sm:text-3xl">Ready for Battle</h3>
-                  <p className="mt-1 text-sm text-[#5d4228] sm:text-base">
+                  <p className="mt-1 text-sm text-[#6b5843] sm:text-base">
                     Click any zombie to begin combat.
                   </p>
                 </div>
 
-                <div className="rounded-2xl border border-[#d2bc8f] bg-[#fff9ea] p-3">
-                  <p className="mb-2 text-xs font-black uppercase tracking-wide text-[#4a2f1b] sm:text-sm">
+                <div className="rounded-2xl border border-[#efe5d3] bg-white/90 p-3">
+                  <p className="mb-2 text-xs font-black uppercase tracking-wide text-[#4a3a28] sm:text-sm">
                     Language Mode
                   </p>
                   <div className="flex flex-wrap gap-2">
@@ -1313,11 +1315,10 @@ export const SimpleEnhancedGame: React.FC<SimpleEnhancedGameProps> = ({ scene, o
                       <button
                         key={value}
                         onClick={() => settingsStore.setLanguageDirection(value)}
-                        className={`rounded-xl border px-3 py-2 text-xs font-black transition sm:text-sm ${
-                          settingsStore.languageDirection === value
-                            ? 'border-[#2f5f28] bg-[#5a8f2f] text-white shadow-md'
-                            : 'border-[#c8aa74] bg-[#f4ead1] text-[#5d4228] hover:bg-[#ead9b5]'
-                        }`}
+                        className={`rounded-xl border px-3 py-2 text-xs font-black transition sm:text-sm ${settingsStore.languageDirection === value
+                          ? 'border-[#2f5f28] bg-[#5a8f2f] text-white shadow-md'
+                          : 'border-[#dcc9a9] bg-[#f8efe1] text-[#5d4b38] hover:bg-[#f2e4cf]'
+                          }`}
                         title={desc}
                       >
                         {label}
@@ -1326,27 +1327,27 @@ export const SimpleEnhancedGame: React.FC<SimpleEnhancedGameProps> = ({ scene, o
                   </div>
                 </div>
 
-                <div className="rounded-2xl border border-[#d2bc8f] bg-[#fff9ea] p-3">
+                <div className="rounded-2xl border border-[#efe5d3] bg-white/90 p-3">
                   <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
-                    <p className="text-xs font-black uppercase tracking-wide text-[#4a2f1b] sm:text-sm">
+                    <p className="text-xs font-black uppercase tracking-wide text-[#4a3a28] sm:text-sm">
                       {t('wordSets')}
                     </p>
                     <GameButton variant="secondary" size="sm" onClick={() => setShowWordSetsSelector(true)}>
                       {t('selectSet')}
                     </GameButton>
                   </div>
-                  <div className="text-xs font-semibold text-[#5d4228] sm:text-sm">
+                  <div className="text-xs font-semibold text-[#6b5843] sm:text-sm">
                     <p>{t('selectedSets')}: {vocabStore.selectedWordSets.length}</p>
                     <p>{t('wordCount')}: {vocabStore.getActiveWords().length}</p>
                   </div>
                 </div>
 
-                <div className="rounded-2xl border border-[#d2bc8f] bg-[#fff9ea] p-3">
-                  <p className="mb-2 text-xs font-black uppercase tracking-wide text-[#4a2f1b] sm:text-sm">
+                <div className="rounded-2xl border border-[#efe5d3] bg-white/90 p-3">
+                  <p className="mb-2 text-xs font-black uppercase tracking-wide text-[#4a3a28] sm:text-sm">
                     Game Modes
                   </p>
-                  <div className="space-y-2 text-sm text-[#4a2f1b]">
-                    <label className="flex cursor-pointer items-center gap-2 rounded-lg bg-[#f4ead1] px-2 py-1.5">
+                  <div className="space-y-2 text-sm text-[#4a3a28]">
+                    <label className="flex cursor-pointer items-center gap-2 rounded-lg bg-[#f8efe1] px-2 py-1.5">
                       <input
                         type="checkbox"
                         checked={settingsStore.questionTypes.multipleChoice}
@@ -1356,11 +1357,11 @@ export const SimpleEnhancedGame: React.FC<SimpleEnhancedGameProps> = ({ scene, o
                             multipleChoice: e.target.checked,
                           })
                         }
-                        className="h-4 w-4 rounded accent-[#5a8f2f]"
+                        className="h-4 w-4 rounded accent-emerald-600"
                       />
                       <span className="font-semibold">Multiple Choice</span>
                     </label>
-                    <label className="flex cursor-pointer items-center gap-2 rounded-lg bg-[#f4ead1] px-2 py-1.5">
+                    <label className="flex cursor-pointer items-center gap-2 rounded-lg bg-[#f8efe1] px-2 py-1.5">
                       <input
                         type="checkbox"
                         checked={settingsStore.questionTypes.letterArrangement}
@@ -1370,21 +1371,21 @@ export const SimpleEnhancedGame: React.FC<SimpleEnhancedGameProps> = ({ scene, o
                             letterArrangement: e.target.checked,
                           })
                         }
-                        className="h-4 w-4 rounded accent-[#5a8f2f]"
+                        className="h-4 w-4 rounded accent-emerald-600"
                       />
                       <span className="font-semibold">Letter Arrangement</span>
                     </label>
                   </div>
                 </div>
 
-                <p className="text-center text-xs font-semibold text-[#6d4a2e] sm:text-sm">
+                <p className="text-center text-xs font-semibold text-[#6b5843] sm:text-sm">
                   Answer vocabulary questions correctly to defeat zombies.
                 </p>
 
                 <GameButton
                   variant="primary"
                   size="lg"
-                  className="w-full"
+                  className="mx-auto w-full max-w-[420px]"
                   onClick={() => {
                     setShowInstructions(false);
                     clearMultipleChoiceProgress();
@@ -1432,11 +1433,10 @@ export const SimpleEnhancedGame: React.FC<SimpleEnhancedGameProps> = ({ scene, o
         {showResult && (
           <div className="absolute inset-0 z-40 flex items-center justify-center rounded-xl bg-black/50 p-3 sm:p-4">
             <div
-              className={`relative w-full max-w-sm overflow-hidden rounded-3xl border-2 p-5 text-center shadow-[0_25px_45px_rgba(0,0,0,0.58)] sm:p-6 ${
-                showResult.correct
-                  ? 'border-[#3b8f2d] bg-gradient-to-b from-[#315923] via-[#29461d] to-[#223816] text-[#f2ffd8]'
-                  : 'border-[#b74a37] bg-gradient-to-b from-[#61261f] via-[#4a1f19] to-[#351612] text-[#ffe4d7]'
-              }`}
+              className={`relative w-full max-w-sm overflow-hidden rounded-3xl border-2 p-5 text-center shadow-[0_25px_45px_rgba(0,0,0,0.58)] sm:p-6 ${showResult.correct
+                ? 'border-[#9dcf79] bg-gradient-to-b from-[#fffef9] via-[#f8f2e6] to-[#ecdfc7] text-[#3f5f2f]'
+                : 'border-[#d79b8d] bg-gradient-to-b from-[#fffdf9] via-[#f7eee7] to-[#ecd9cf] text-[#6f3a2f]'
+                }`}
             >
               <div className="pointer-events-none absolute inset-0 opacity-25 bg-[radial-gradient(circle_at_25%_0%,rgba(255,255,255,0.35),transparent_38%),radial-gradient(circle_at_85%_20%,rgba(255,255,255,0.18),transparent_42%)]" />
               <img
@@ -1450,18 +1450,17 @@ export const SimpleEnhancedGame: React.FC<SimpleEnhancedGameProps> = ({ scene, o
                   {showResult.correct ? 'WIN' : 'KO'}
                 </div>
                 <h3
-                  className={`mt-2 text-xl font-black uppercase tracking-wide sm:text-2xl ${
-                    showResult.correct ? 'text-[#cbff93]' : 'text-[#ffd1c2]'
-                  }`}
+                  className={`mt-2 text-xl font-black uppercase tracking-wide sm:text-2xl ${showResult.correct ? 'text-[#5c8a3f]' : 'text-[#b34f3e]'
+                    }`}
                 >
                   {showResult.correct ? 'Target Down' : 'Hit Taken'}
                 </h3>
                 {showResult.correct ? (
-                  <p className="mt-3 text-base font-bold text-[#f4ffd9] sm:text-lg">
+                  <p className="mt-3 text-base font-bold text-[#3d6e2e] sm:text-lg">
                     +{showResult.points} score
                   </p>
                 ) : (
-                  <p className="mt-3 text-base font-bold text-[#ffd9cf] sm:text-lg">
+                  <p className="mt-3 text-base font-bold text-[#a14b3a] sm:text-lg">
                     You lost a life
                   </p>
                 )}
@@ -1487,7 +1486,7 @@ export const SimpleEnhancedGame: React.FC<SimpleEnhancedGameProps> = ({ scene, o
       {/* Game Over Check */}
       {gameStore.lives <= 0 && (
         <div className="absolute inset-0 z-50 flex items-center justify-center rounded-xl bg-black/80 p-3 sm:p-4">
-          <div className="relative w-full max-w-md overflow-hidden rounded-3xl border-2 border-[#8e3327] bg-gradient-to-b from-[#62261f] via-[#4c1c18] to-[#33130f] p-6 text-center text-[#ffe9df] shadow-[0_30px_60px_rgba(0,0,0,0.62)] sm:p-8">
+          <div className="relative w-full max-w-md overflow-hidden rounded-3xl border-2 border-[#d9c5a6] bg-gradient-to-b from-[#fffef9] via-[#f5ecdd] to-[#ead9bc] p-6 text-center text-[#4a3a28] shadow-[0_24px_48px_rgba(92,73,45,0.35)] sm:p-8">
             <div className="pointer-events-none absolute inset-0 opacity-25 bg-[radial-gradient(circle_at_24%_0%,rgba(255,255,255,0.35),transparent_36%),radial-gradient(circle_at_84%_20%,rgba(255,255,255,0.2),transparent_40%)]" />
             <img
               src="/assets/ui/jungle/load_bar/bg.png"
@@ -1496,10 +1495,10 @@ export const SimpleEnhancedGame: React.FC<SimpleEnhancedGameProps> = ({ scene, o
               draggable={false}
             />
             <div className="relative">
-              <div className="text-5xl font-black tracking-wide text-[#ffd3c4] sm:text-6xl">KO</div>
-              <h2 className="mt-2 text-3xl font-black uppercase tracking-wide text-[#ffd1be]">Mission Failed</h2>
-              <p className="mt-4 text-lg font-bold text-[#ffe4d8]">Final Score: {gameStore.score}</p>
-              <p className="mt-1 text-sm font-semibold text-[#ffc4b1]">Regroup and deploy again.</p>
+              <div className="text-5xl font-black tracking-wide text-[#b34f3e] sm:text-6xl">KO</div>
+              <h2 className="mt-2 text-3xl font-black uppercase tracking-wide text-[#6d3e33]">Mission Failed</h2>
+              <p className="mt-4 text-lg font-bold text-[#4a3a28]">Final Score: {gameStore.score}</p>
+              <p className="mt-1 text-sm font-semibold text-[#7a5e45]">Regroup and deploy again.</p>
 
               <div className="mt-6 flex flex-col items-center gap-3">
                 <GameButton
@@ -1557,5 +1556,3 @@ export const SimpleEnhancedGame: React.FC<SimpleEnhancedGameProps> = ({ scene, o
     </div>
   );
 };
-
-

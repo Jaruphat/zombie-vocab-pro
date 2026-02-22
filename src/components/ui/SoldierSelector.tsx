@@ -22,7 +22,7 @@ const SoldierPreview: React.FC<{ soldierType: string }> = ({ soldierType }) => {
         fallback.textContent = 'S';
         fallback.style.fontSize = '32px';
         fallback.style.fontWeight = '700';
-        fallback.style.color = '#5b3a21';
+        fallback.style.color = '#5d4b38';
         e.currentTarget.parentNode?.appendChild(fallback);
       }}
     />
@@ -66,9 +66,9 @@ const SoldierSelector: React.FC<SoldierSelectorProps> = ({ onSoldierSelected, cl
 
   return (
     <div className={`w-full space-y-4 ${className}`}>
-      <div className="rounded-2xl border border-[#b99662] bg-[#fff6df]/90 p-3 text-center shadow-[inset_0_1px_0_rgba(255,255,255,0.5)] sm:p-4">
-        <h2 className="text-xl font-black uppercase tracking-wide text-[#3d281a] sm:text-2xl">Choose Your Soldier</h2>
-        <p className="mt-1 text-sm font-semibold text-[#6d4a2e]">Select a soldier character for your mission</p>
+      <div className="rounded-2xl border border-[#dcc9a9] bg-[#fffcf7]/95 p-3 text-center shadow-[inset_0_1px_0_rgba(255,255,255,0.5)] sm:p-4">
+        <h2 className="text-xl font-black uppercase tracking-wide text-[#4a3a28] sm:text-2xl">Choose Your Soldier</h2>
+        <p className="mt-1 text-sm font-semibold text-[#6b5843]">Select a soldier character for your mission</p>
       </div>
 
       <div className="grid grid-cols-2 gap-3 md:grid-cols-5 md:gap-4">
@@ -78,15 +78,15 @@ const SoldierSelector: React.FC<SoldierSelectorProps> = ({ onSoldierSelected, cl
             group relative flex min-h-[190px] flex-col items-center rounded-2xl border p-4 transition-all duration-200
             ${randomizeSoldier
               ? 'border-[#5ecf55] bg-gradient-to-b from-[#4d8f2e] via-[#3c7126] to-[#2f5b1f] text-white shadow-[0_14px_22px_rgba(0,0,0,0.35)]'
-              : 'border-[#cdb084] bg-[#f7efdb] text-[#4f3521] shadow-[0_10px_18px_rgba(0,0,0,0.18)] hover:-translate-y-0.5 hover:shadow-[0_14px_22px_rgba(0,0,0,0.24)]'
+              : 'border-[#dfcdb1] bg-[#f8efe1] text-[#5d4b38] shadow-[0_10px_18px_rgba(0,0,0,0.18)] hover:-translate-y-0.5 hover:shadow-[0_14px_22px_rgba(0,0,0,0.24)]'
             }
           `}
           onClick={handleRandomModeSelect}
         >
-          <div className="pointer-events-none absolute left-4 right-4 top-4 h-2 rounded-full bg-[#5a4632]/78 shadow-[inset_0_1px_0_rgba(255,255,255,0.24)]" />
+          <div className="pointer-events-none absolute left-4 right-4 top-4 h-2 rounded-full bg-[#a8916f]/75 shadow-[inset_0_1px_0_rgba(255,255,255,0.24)]" />
           <div
             className={`mb-3 flex h-24 w-24 items-center justify-center overflow-hidden rounded-xl border ${
-              randomizeSoldier ? 'border-[#cde9b0] bg-[#ffffff1f]' : 'border-[#d8c09a] bg-[#fff9ea]'
+              randomizeSoldier ? 'border-[#cde9b0] bg-[#ffffff1f]' : 'border-[#efe5d3] bg-white'
             }`}
           >
             <img
@@ -96,10 +96,10 @@ const SoldierSelector: React.FC<SoldierSelectorProps> = ({ onSoldierSelected, cl
               draggable={false}
             />
           </div>
-          <span className={`text-sm font-black uppercase tracking-wide ${randomizeSoldier ? 'text-white' : 'text-[#4f3521]'}`}>
+          <span className={`text-sm font-black uppercase tracking-wide ${randomizeSoldier ? 'text-white' : 'text-[#5d4b38]'}`}>
             Random Mode
           </span>
-          <span className={`mt-1 text-[11px] font-semibold ${randomizeSoldier ? 'text-[#e8ffd0]' : 'text-[#7a5a39]'}`}>
+          <span className={`mt-1 text-[11px] font-semibold ${randomizeSoldier ? 'text-[#e8ffd0]' : 'text-[#866f56]'}`}>
             Change every level
           </span>
           {randomizeSoldier && (
@@ -121,20 +121,20 @@ const SoldierSelector: React.FC<SoldierSelectorProps> = ({ onSoldierSelected, cl
                 group relative flex min-h-[190px] flex-col items-center rounded-2xl border p-4 text-center transition-all duration-200
                 ${isActive
                   ? 'border-[#5ecf55] bg-gradient-to-b from-[#4d8f2e] via-[#3c7126] to-[#2f5b1f] text-white shadow-[0_14px_22px_rgba(0,0,0,0.35)]'
-                  : 'border-[#cdb084] bg-[#f7efdb] text-[#4f3521] shadow-[0_10px_18px_rgba(0,0,0,0.18)] hover:-translate-y-0.5 hover:shadow-[0_14px_22px_rgba(0,0,0,0.24)]'
+                  : 'border-[#dfcdb1] bg-[#f8efe1] text-[#5d4b38] shadow-[0_10px_18px_rgba(0,0,0,0.18)] hover:-translate-y-0.5 hover:shadow-[0_14px_22px_rgba(0,0,0,0.24)]'
                 }
               `}
               onClick={() => handleSoldierSelect(soldier.value)}
             >
-              <div className="pointer-events-none absolute left-4 right-4 top-4 h-2 rounded-full bg-[#5a4632]/78 shadow-[inset_0_1px_0_rgba(255,255,255,0.24)]" />
+              <div className="pointer-events-none absolute left-4 right-4 top-4 h-2 rounded-full bg-[#a8916f]/75 shadow-[inset_0_1px_0_rgba(255,255,255,0.24)]" />
               <div
                 className={`mb-3 flex h-24 w-24 items-center justify-center overflow-hidden rounded-xl border ${
-                  isActive ? 'border-[#cde9b0] bg-[#ffffff1f]' : 'border-[#d8c09a] bg-[#fff9ea]'
+                  isActive ? 'border-[#cde9b0] bg-[#ffffff1f]' : 'border-[#efe5d3] bg-white'
                 }`}
               >
                 <SoldierPreview soldierType={soldier.value} />
               </div>
-              <span className={`text-sm font-black tracking-wide ${isActive ? 'text-white' : 'text-[#4f3521]'}`}>
+              <span className={`text-sm font-black tracking-wide ${isActive ? 'text-white' : 'text-[#5d4b38]'}`}>
                 {soldier.name}
               </span>
 
@@ -149,9 +149,9 @@ const SoldierSelector: React.FC<SoldierSelectorProps> = ({ onSoldierSelected, cl
         })}
       </div>
 
-      <div className="rounded-2xl border border-[#b99662] bg-[#fff6df]/90 p-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.55)]">
+      <div className="rounded-2xl border border-[#dcc9a9] bg-[#fffcf7]/95 p-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.55)]">
         <div className="flex items-center gap-3">
-          <div className="flex h-16 w-16 items-center justify-center rounded-xl border border-[#d8c09a] bg-[#fff9ea]">
+          <div className="flex h-16 w-16 items-center justify-center rounded-xl border border-[#efe5d3] bg-white">
             {randomizeSoldier ? (
               <img
                 src="/assets/ui/jungle/btn/menu.png"
@@ -164,12 +164,12 @@ const SoldierSelector: React.FC<SoldierSelectorProps> = ({ onSoldierSelected, cl
             )}
           </div>
           <div className="min-w-0">
-            <p className="text-xs font-bold uppercase tracking-wide text-[#7a5a39]">Selected</p>
-            <p className="truncate text-lg font-black text-[#3d281a]">
+            <p className="text-xs font-bold uppercase tracking-wide text-[#866f56]">Selected</p>
+            <p className="truncate text-lg font-black text-[#4a3a28]">
               {randomizeSoldier ? 'Random (Every Level)' : selectedSoldierLabel}
             </p>
             {randomizeSoldier && (
-              <p className="text-xs font-semibold text-[#7a5a39]">Current: {selectedSoldierLabel}</p>
+              <p className="text-xs font-semibold text-[#866f56]">Current: {selectedSoldierLabel}</p>
             )}
           </div>
         </div>
@@ -179,3 +179,5 @@ const SoldierSelector: React.FC<SoldierSelectorProps> = ({ onSoldierSelected, cl
 };
 
 export default SoldierSelector;
+
+

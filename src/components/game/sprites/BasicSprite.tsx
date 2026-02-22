@@ -63,7 +63,7 @@ export const BasicSprite: React.FC<BasicSpriteProps> = ({
   height = 64,
   scale = 1,
   flipX = false,
-  variant = 1, // Default to variant 1
+  variant = 3, // Default to a full-body variant
   shootingStyle = 'base',
   onAnimationComplete,
   className = ''

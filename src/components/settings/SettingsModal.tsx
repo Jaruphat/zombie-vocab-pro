@@ -21,7 +21,7 @@ const ToggleSwitch: React.FC<ToggleProps> = ({ enabled, onClick }) => {
     <button
       onClick={onClick}
       className={`relative h-8 w-16 rounded-full border-2 transition-colors ${
-        enabled ? 'border-emerald-300 bg-emerald-600/90' : 'border-[#6a4f2d] bg-[#2f2116]'
+        enabled ? 'border-emerald-200 bg-emerald-500/95' : 'border-[#dcc9a9] bg-[#f2e4cf]'
       }`}
       type="button"
       aria-pressed={enabled}
@@ -56,32 +56,27 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
   if (!isOpen) return null;
 
   const panelClass =
-    'rounded-2xl border border-[#7d5b36] bg-[#f6efd8]/95 p-3 sm:p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.55)]';
-  const sectionTitleClass = 'text-sm sm:text-base font-black uppercase tracking-wide text-[#3d281a]';
+    'rounded-2xl border border-[#eadfcb] bg-[#fffcf7]/96 p-3 sm:p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.55)]';
+  const sectionTitleClass = 'text-sm sm:text-base font-black uppercase tracking-wide text-[#4a3a28]';
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-2 sm:p-4 backdrop-blur-[2px]">
-      <div className="relative flex max-h-[92vh] w-full max-w-sm flex-col overflow-hidden rounded-3xl border-2 border-[#6f4e2e] bg-gradient-to-b from-[#5a3926] via-[#432b1d] to-[#2f1d14] shadow-[0_30px_60px_rgba(0,0,0,0.55)] sm:max-w-4xl">
+      <div className="relative flex max-h-[92vh] w-full max-w-sm flex-col overflow-hidden rounded-3xl border-2 border-[#d9c5a6]/55 bg-gradient-to-b from-[#fffaf1] via-[#f3e8d3] to-[#e6d6bc] shadow-[0_30px_60px_rgba(0,0,0,0.55)] sm:max-w-4xl">
         <div className="pointer-events-none absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_15%_10%,rgba(255,255,255,0.45),transparent_35%),radial-gradient(circle_at_85%_0,rgba(255,255,255,0.18),transparent_38%)]" />
 
-        <div className="relative border-b border-[#8f6a40]/60 px-3 py-3 sm:px-5 sm:py-4">
-          <img
-            src="/assets/ui/jungle/load_bar/bg.png"
-            alt=""
-            className="pointer-events-none absolute inset-x-2 top-2 h-2 object-fill opacity-70"
-            draggable={false}
-          />
+        <div className="relative border-b border-[#e8dbc5]/45 px-3 py-3 sm:px-5 sm:py-4">
+          <div className="pointer-events-none absolute inset-x-2 top-2 h-2 rounded-full bg-gradient-to-r from-[#f5e8cd]/80 via-[#e8d6b6]/70 to-[#d7c09a]/70" />
           <div className="flex items-center justify-between gap-3">
             <div>
-              <h2 className="text-lg font-black uppercase tracking-wide text-[#fff7df] sm:text-2xl">
+              <h2 className="text-lg font-black uppercase tracking-wide text-[#4a3a28] sm:text-2xl">
                 {t('gameSettings')}
               </h2>
-              <p className="text-xs text-[#f4ddaa] sm:text-sm">{t('customizeSettings')}</p>
+              <p className="text-xs text-[#6b5843] sm:text-sm">{t('customizeSettings')}</p>
             </div>
             <button
               onClick={onClose}
               type="button"
-              className="relative h-10 w-10 shrink-0 overflow-hidden rounded-xl border border-[#9f7f4f] bg-[#2a1a11] shadow-md transition hover:brightness-110"
+              className="relative h-10 w-10 shrink-0 overflow-hidden rounded-xl border border-[#e8dbc5]/45 bg-[#d4be98] shadow-md transition hover:brightness-110"
               aria-label="Close settings"
             >
               <img
@@ -98,13 +93,13 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
           <section className={panelClass}>
             <div className="mb-3 flex items-center justify-between">
               <h3 className={sectionTitleClass}>{t('audio')}</h3>
-              <span className="rounded-full border border-[#8d6a3e] bg-[#f9f4e4] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-[#66452b] sm:text-xs">
+              <span className="rounded-full border border-[#d7c9af] bg-[#fff7e8] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-[#6b5843] sm:text-xs">
                 Mixer
               </span>
             </div>
             <div className="space-y-3">
-              <div className="flex items-center justify-between gap-3 rounded-xl border border-[#d8c49a] bg-white/70 px-3 py-2">
-                <label className="text-sm font-semibold text-[#402818]">{t('soundEffects')}</label>
+              <div className="flex items-center justify-between gap-3 rounded-xl border border-[#efe5d3] bg-white/80 px-3 py-2">
+                <label className="text-sm font-semibold text-[#4a3a28]">{t('soundEffects')}</label>
                 <ToggleSwitch
                   enabled={settingsStore.soundEnabled}
                   onClick={() => {
@@ -116,10 +111,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
               </div>
 
               {settingsStore.soundEnabled && (
-                <div className="rounded-xl border border-[#d8c49a] bg-white/70 px-3 py-2">
+                <div className="rounded-xl border border-[#efe5d3] bg-white/80 px-3 py-2">
                   <div className="mb-2 flex items-center justify-between">
-                    <span className="text-sm font-semibold text-[#402818]">Sound Volume</span>
-                    <span className="text-xs font-bold text-[#5a3926]">
+                    <span className="text-sm font-semibold text-[#4a3a28]">Sound Volume</span>
+                    <span className="text-xs font-bold text-[#6b5843]">
                       {Math.round(settingsStore.soundVolume * 100)}%
                     </span>
                   </div>
@@ -134,18 +129,18 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                       settingsStore.setSoundVolume(volume);
                       if (volume > 0) audioSystem.playButtonClickSound();
                     }}
-                    className="h-2 w-full cursor-pointer appearance-none rounded-full bg-[#d7c190]"
+                    className="h-2 w-full cursor-pointer appearance-none rounded-full bg-[#e6d8bf]"
                     style={{
                       background: `linear-gradient(to right, #22c55e 0%, #22c55e ${
                         settingsStore.soundVolume * 100
-                      }%, #d7c190 ${settingsStore.soundVolume * 100}%, #d7c190 100%)`,
+                      }%, #e6d8bf ${settingsStore.soundVolume * 100}%, #e6d8bf 100%)`,
                     }}
                   />
                 </div>
               )}
 
-              <div className="flex items-center justify-between gap-3 rounded-xl border border-[#d8c49a] bg-white/70 px-3 py-2">
-                <label className="text-sm font-semibold text-[#402818]">{t('backgroundMusic')}</label>
+              <div className="flex items-center justify-between gap-3 rounded-xl border border-[#efe5d3] bg-white/80 px-3 py-2">
+                <label className="text-sm font-semibold text-[#4a3a28]">{t('backgroundMusic')}</label>
                 <ToggleSwitch
                   enabled={settingsStore.musicEnabled}
                   onClick={() => {
@@ -161,10 +156,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
               </div>
 
               {settingsStore.musicEnabled && (
-                <div className="rounded-xl border border-[#d8c49a] bg-white/70 px-3 py-2">
+                <div className="rounded-xl border border-[#efe5d3] bg-white/80 px-3 py-2">
                   <div className="mb-2 flex items-center justify-between">
-                    <span className="text-sm font-semibold text-[#402818]">Music Volume</span>
-                    <span className="text-xs font-bold text-[#5a3926]">
+                    <span className="text-sm font-semibold text-[#4a3a28]">Music Volume</span>
+                    <span className="text-xs font-bold text-[#6b5843]">
                       {Math.round(settingsStore.musicVolume * 100)}%
                     </span>
                   </div>
@@ -175,11 +170,11 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                     step="0.1"
                     value={settingsStore.musicVolume}
                     onChange={(e) => settingsStore.setMusicVolume(parseFloat(e.target.value))}
-                    className="h-2 w-full cursor-pointer appearance-none rounded-full bg-[#d7c190]"
+                    className="h-2 w-full cursor-pointer appearance-none rounded-full bg-[#e6d8bf]"
                     style={{
                       background: `linear-gradient(to right, #06b6d4 0%, #06b6d4 ${
                         settingsStore.musicVolume * 100
-                      }%, #d7c190 ${settingsStore.musicVolume * 100}%, #d7c190 100%)`,
+                      }%, #e6d8bf ${settingsStore.musicVolume * 100}%, #e6d8bf 100%)`,
                     }}
                   />
                 </div>
@@ -190,12 +185,12 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
           <section className={panelClass}>
             <h3 className={`${sectionTitleClass} mb-3`}>{t('game')}</h3>
             <div className="space-y-3">
-              <div className="flex items-center justify-between gap-3 rounded-xl border border-[#d8c49a] bg-white/70 px-3 py-2">
-                <label className="text-sm font-semibold text-[#402818]">{t('difficulty')}</label>
+              <div className="flex items-center justify-between gap-3 rounded-xl border border-[#efe5d3] bg-white/80 px-3 py-2">
+                <label className="text-sm font-semibold text-[#4a3a28]">{t('difficulty')}</label>
                 <select
                   value={settingsStore.difficulty}
                   onChange={(e) => settingsStore.setDifficulty(e.target.value as GameSettings['difficulty'])}
-                  className="rounded-xl border border-[#ae8b57] bg-[#f4ebd3] px-3 py-1.5 text-sm font-semibold text-[#402818] outline-none focus:ring-2 focus:ring-amber-400"
+                  className="rounded-xl border border-[#d2bb96] bg-[#f8efe1] px-3 py-1.5 text-sm font-semibold text-[#4a3a28] outline-none focus:ring-2 focus:ring-emerald-300"
                 >
                   <option value="easy">{t('easy')}</option>
                   <option value="medium">{t('medium')}</option>
@@ -203,8 +198,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                 </select>
               </div>
 
-              <div className="flex items-center justify-between gap-3 rounded-xl border border-[#d8c49a] bg-white/70 px-3 py-2">
-                <label className="text-sm font-semibold text-[#402818]">{t('autoSave')}</label>
+              <div className="flex items-center justify-between gap-3 rounded-xl border border-[#efe5d3] bg-white/80 px-3 py-2">
+                <label className="text-sm font-semibold text-[#4a3a28]">{t('autoSave')}</label>
                 <ToggleSwitch
                   enabled={settingsStore.autoSave}
                   onClick={() => settingsStore.setAutoSave(!settingsStore.autoSave)}
@@ -217,7 +212,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
             <h3 className={`${sectionTitleClass} mb-3`}>{t('language')}</h3>
             <div className="space-y-4">
               <div>
-                <label className="mb-2 block text-sm font-semibold text-[#402818]">{t('uiLanguage')}</label>
+                <label className="mb-2 block text-sm font-semibold text-[#4a3a28]">{t('uiLanguage')}</label>
                 <div className="grid grid-cols-2 gap-2">
                   {[
                     { value: 'en', label: 'English' },
@@ -230,7 +225,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                       className={`rounded-xl border px-3 py-2 text-sm font-bold transition ${
                         settingsStore.uiLanguage === value
                           ? 'border-emerald-300 bg-emerald-600 text-white shadow-md'
-                          : 'border-[#b99764] bg-[#f4ebd3] text-[#4a2f1b] hover:bg-[#eee0be]'
+                          : 'border-[#dcc9a9] bg-[#f8efe1] text-[#5d4b38] hover:bg-[#f2e4cf]'
                       }`}
                     >
                       {label}
@@ -240,7 +235,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
               </div>
 
               <div>
-                <label className="mb-2 block text-sm font-semibold text-[#402818]">
+                <label className="mb-2 block text-sm font-semibold text-[#4a3a28]">
                   {t('languageDirection')}
                 </label>
                 <div className="grid grid-cols-3 gap-2">
@@ -258,7 +253,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                       className={`rounded-xl border px-2 py-2 text-xs font-bold transition sm:text-sm ${
                         settingsStore.languageDirection === value
                           ? 'border-cyan-300 bg-cyan-600 text-white shadow-md'
-                          : 'border-[#b99764] bg-[#f4ebd3] text-[#4a2f1b] hover:bg-[#eee0be]'
+                          : 'border-[#dcc9a9] bg-[#f8efe1] text-[#5d4b38] hover:bg-[#f2e4cf]'
                       }`}
                       title={desc}
                     >
@@ -272,7 +267,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
 
           <section className={panelClass}>
             <h3 className={`${sectionTitleClass} mb-3`}>{t('soldierSelection')}</h3>
-            <div className="rounded-2xl border border-[#d2bc8f] bg-white/65 p-3 sm:p-4">
+            <div className="rounded-2xl border border-[#efe5d3] bg-white/75 p-3 sm:p-4">
               <SoldierSelector />
             </div>
           </section>
@@ -280,7 +275,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
           <section className={panelClass}>
             <h3 className={`${sectionTitleClass} mb-3`}>{t('questionFormats')}</h3>
             <div className="space-y-2">
-              <label className="flex cursor-pointer items-center gap-3 rounded-xl border border-[#d8c49a] bg-white/70 px-3 py-2">
+              <label className="flex cursor-pointer items-center gap-3 rounded-xl border border-[#efe5d3] bg-white/80 px-3 py-2">
                 <input
                   type="checkbox"
                   checked={settingsStore.questionTypes.multipleChoice}
@@ -292,10 +287,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                   }
                   className="h-4 w-4 rounded accent-emerald-600"
                 />
-                <span className="text-sm font-semibold text-[#402818]">{t('multipleChoiceOption')}</span>
+                <span className="text-sm font-semibold text-[#4a3a28]">{t('multipleChoiceOption')}</span>
               </label>
 
-              <label className="flex cursor-pointer items-center gap-3 rounded-xl border border-[#d8c49a] bg-white/70 px-3 py-2">
+              <label className="flex cursor-pointer items-center gap-3 rounded-xl border border-[#efe5d3] bg-white/80 px-3 py-2">
                 <input
                   type="checkbox"
                   checked={settingsStore.questionTypes.letterArrangement}
@@ -307,13 +302,13 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                   }
                   className="h-4 w-4 rounded accent-emerald-600"
                 />
-                <span className="text-sm font-semibold text-[#402818]">{t('letterArrangementOption')}</span>
+                <span className="text-sm font-semibold text-[#4a3a28]">{t('letterArrangementOption')}</span>
               </label>
             </div>
           </section>
         </div>
 
-        <div className="relative border-t border-[#8f6a40]/60 px-3 py-3 sm:px-5 sm:py-4">
+        <div className="relative border-t border-[#e8dbc5]/45 px-3 py-3 sm:px-5 sm:py-4">
           <div className="flex justify-end">
             <GameButton variant="primary" size="md" onClick={onClose}>
               {t('save')}
@@ -324,3 +319,5 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
     </div>
   );
 };
+
+

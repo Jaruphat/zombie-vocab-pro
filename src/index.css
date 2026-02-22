@@ -3,10 +3,11 @@
 @tailwind utilities;
 
 @layer base {
+
   /* Default character positioning values - MUST BE FIRST */
   :root {
-    --player-ground-nudge: 58px;
-    --zombie-ground-nudge: 100px;
+    --player-ground-nudge: 40px;
+    --zombie-ground-nudge: 80px;
   }
 
   * {
@@ -14,12 +15,14 @@
     padding: 0;
     box-sizing: border-box;
   }
-  
-  html, body, #root {
+
+  html,
+  body,
+  #root {
     height: 100%;
     overflow: hidden;
   }
-  
+
   body {
     font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
     line-height: 1.5;
@@ -30,39 +33,39 @@
     -moz-osx-font-smoothing: grayscale;
     -webkit-text-size-adjust: 100%;
   }
-  
+
   html {
     font-family: 'Inter', system-ui, sans-serif;
   }
-  
+
   button {
     color: inherit;
   }
-  
+
   /* Mobile portrait mode character scaling adjustments */
   @media (orientation: portrait) and (max-width: 768px) {
     :root {
       --mobile-portrait-player-scale: clamp(0.7, 2.2vw + 0.7rem, 1.3);
       --mobile-portrait-zombie-scale: clamp(0.3, 1vw + 0.3rem, 0.6);
-      --player-ground-nudge: 42px;
-      --zombie-ground-nudge: 74px;
+      --player-ground-nudge: 28px;
+      --zombie-ground-nudge: 58px;
     }
   }
-  
+
   @media (orientation: landscape) and (max-width: 768px) {
     :root {
       --mobile-landscape-player-scale: clamp(1.1, 3vw + 1.1rem, 1.7);
       --mobile-landscape-zombie-scale: clamp(0.5, 1.5vw + 0.5rem, 0.8);
-      --player-ground-nudge: 36px;
-      --zombie-ground-nudge: 64px;
+      --player-ground-nudge: 26px;
+      --zombie-ground-nudge: 52px;
     }
   }
-  
+
   /* Duplicate default values removed - now defined at top of file */
-  
+
   body {
     min-height: 100vh;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(145deg, #fbf7ee 0%, #f3ead9 55%, #e7d7be 100%);
     overflow-x: hidden;
     -webkit-tap-highlight-color: transparent;
     touch-action: manipulation;
@@ -79,15 +82,15 @@
     min-width: 44px;
     touch-action: manipulation;
   }
-  
+
   .game-button-primary {
     @apply game-button bg-gradient-to-r from-game-primary to-game-secondary hover:from-orange-600 hover:to-red-600;
   }
-  
+
   .game-card {
     @apply bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20;
   }
-  
+
   .game-container {
     @apply min-h-screen p-4 flex items-center justify-center;
   }
@@ -111,11 +114,11 @@
   }
 
   /* Prevent zoom on input focus */
-  input[type="text"], 
-  input[type="number"], 
-  input[type="email"], 
-  input[type="password"], 
-  select, 
+  input[type="text"],
+  input[type="number"],
+  input[type="email"],
+  input[type="password"],
+  select,
   textarea {
     font-size: 16px;
     -webkit-appearance: none;
@@ -130,7 +133,7 @@
 
   .game-scroll {
     scrollbar-width: thin;
-    scrollbar-color: #8ce63b #3f2819;
+    scrollbar-color: #bfa37b #ecdfcb;
     -webkit-overflow-scrolling: touch;
   }
 
@@ -141,26 +144,19 @@
 
   .game-scroll::-webkit-scrollbar-track {
     border-radius: 9999px;
-    border: 2px solid rgba(140, 101, 58, 0.85);
-    background-color: #3f2819;
-    background-image: url('/assets/ui/jungle/load_bar/bg.png');
-    background-size: 100% 100%;
-    background-repeat: no-repeat;
+    border: 2px solid rgba(184, 159, 119, 0.85);
+    background: linear-gradient(180deg, #f4ead8 0%, #ebdfc8 100%);
   }
 
   .game-scroll::-webkit-scrollbar-thumb {
     border-radius: 9999px;
-    border: 2px solid rgba(59, 38, 21, 0.9);
-    background-color: #6dbd2c;
-    background-image: url('/assets/ui/jungle/load_bar/2.png');
-    background-size: 100% 100%;
-    background-repeat: no-repeat;
-    box-shadow: 0 0 0 1px rgba(232, 250, 199, 0.2) inset;
+    border: 2px solid rgba(132, 103, 64, 0.9);
+    background: linear-gradient(180deg, #d8be94 0%, #bea072 100%);
+    box-shadow: 0 0 0 1px rgba(255, 247, 230, 0.3) inset;
   }
 
   .game-scroll::-webkit-scrollbar-thumb:hover {
-    background-color: #7dd833;
-    background-image: url('/assets/ui/jungle/load_bar/1.png');
+    background: linear-gradient(180deg, #e4cba3 0%, #c7a97b 100%);
   }
 
   .game-scroll::-webkit-scrollbar-corner {
@@ -259,6 +255,7 @@
     top: var(--bullet-start-y);
     opacity: 0.95;
   }
+
   to {
     left: var(--bullet-end-x);
     top: var(--bullet-end-y);
@@ -271,6 +268,7 @@
     opacity: 0.95;
     transform: translate(-50%, 50%) scale(0.5);
   }
+
   to {
     opacity: 0;
     transform: translate(-50%, 50%) scale(1.2);
@@ -282,10 +280,12 @@
     opacity: 0;
     transform: translate(-50%, -50%) scale(0.58);
   }
+
   20% {
     opacity: 1;
     transform: translate(-50%, -50%) scale(1);
   }
+
   to {
     opacity: 0.86;
     transform: translate(-50%, -50%) scale(1.06);
@@ -296,6 +296,7 @@
   from {
     transform: translate(-50%, -50%) rotate(var(--bullet-sprite-rotation, 0deg));
   }
+
   to {
     transform: translate(-50%, -50%) rotate(calc(var(--bullet-sprite-rotation, 0deg) + 360deg));
   }
@@ -305,9 +306,11 @@
   0% {
     transform: translateY(0px) rotate(0deg);
   }
+
   50% {
     transform: translateY(-2px) rotate(1deg);
   }
+
   100% {
     transform: translateY(0px) rotate(0deg);
   }
