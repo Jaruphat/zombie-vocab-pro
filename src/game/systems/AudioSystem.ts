@@ -1,3 +1,9 @@
+declare global {
+  interface Window {
+    webkitAudioContext?: typeof AudioContext;
+  }
+}
+
 export class AudioSystem {
   private static instance: AudioSystem;
   private context: AudioContext | null = null;
@@ -20,7 +26,11 @@ export class AudioSystem {
 
   private initAudioContext(): void {
     try {
-      this.context = new (window.AudioContext || (window as any).webkitAudioContext)();
+      const AudioContextClass = window.AudioContext ?? window.webkitAudioContext;
+      if (!AudioContextClass) {
+        throw new Error('AudioContext is not available');
+      }
+      this.context = new AudioContextClass();
     } catch (error) {
       console.warn('Web Audio API not supported:', error);
     }

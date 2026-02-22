@@ -83,7 +83,7 @@ const sampleWordSets: WordSet[] = [
 ];
 
 // Keep some sample words for backward compatibility
-const sampleWords: VocabWord[] = sampleWordSets[0].words;
+const sampleWords: VocabWord[] = sampleWordSets.flatMap((set) => set.words);
 
 export const useVocabStore = create<VocabStore>()(
   persist(
@@ -102,12 +102,20 @@ export const useVocabStore = create<VocabStore>()(
 
       removeWord: (id) => set((state) => ({
         words: state.words.filter(w => w.id !== id),
-        customWords: state.customWords.filter(w => w.id !== id)
+        customWords: state.customWords.filter(w => w.id !== id),
+        wordSets: state.wordSets.map(set => ({
+          ...set,
+          words: set.words.filter(w => w.id !== id)
+        }))
       })),
 
       updateWord: (id, updates) => set((state) => ({
         words: state.words.map(w => w.id === id ? { ...w, ...updates } : w),
-        customWords: state.customWords.map(w => w.id === id ? { ...w, ...updates } : w)
+        customWords: state.customWords.map(w => w.id === id ? { ...w, ...updates } : w),
+        wordSets: state.wordSets.map(set => ({
+          ...set,
+          words: set.words.map(w => w.id === id ? { ...w, ...updates } : w)
+        }))
       })),
 
       setWords: (words) => set({ words }),
@@ -128,7 +136,9 @@ export const useVocabStore = create<VocabStore>()(
 
       exportWords: () => {
         const state = get();
-        return [...state.words, ...state.customWords];
+        const wordsFromSets = state.wordSets.flatMap(set => set.words);
+        const allWords = [...wordsFromSets, ...state.customWords];
+        return Array.from(new Map(allWords.map(word => [word.id, word])).values());
       },
 
       // Word Sets methods
@@ -136,22 +146,34 @@ export const useVocabStore = create<VocabStore>()(
         wordSets: [...state.wordSets, { ...wordSet, id: crypto.randomUUID() }]
       })),
 
-      removeWordSet: (id) => set((state) => ({
-        wordSets: state.wordSets.filter(s => s.id !== id),
-        selectedWordSets: state.selectedWordSets.filter(setId => setId !== id)
-      })),
+      removeWordSet: (id) => set((state) => {
+        const remainingWordSets = state.wordSets.filter(s => s.id !== id);
+        const remainingSelected = state.selectedWordSets.filter(setId => setId !== id);
+        return {
+          wordSets: remainingWordSets,
+          selectedWordSets: remainingSelected.length > 0
+            ? remainingSelected
+            : remainingWordSets.slice(0, 1).map(set => set.id)
+        };
+      }),
 
       updateWordSet: (id, updates) => set((state) => ({
         wordSets: state.wordSets.map(s => s.id === id ? { ...s, ...updates } : s)
       })),
 
-      setSelectedWordSets: (setIds) => set({ selectedWordSets: setIds }),
+      setSelectedWordSets: (setIds) => set((state) => ({
+        selectedWordSets: setIds.length > 0
+          ? setIds
+          : state.wordSets.slice(0, 1).map(set => set.id)
+      })),
 
       getActiveWords: () => {
         const state = get();
+        const allSetWords = state.wordSets.flatMap(set => set.words);
+
         if (state.selectedWordSets.length === 0) {
           // Fallback to all words if no sets selected
-          return [...state.words, ...state.customWords];
+          return Array.from(new Map([...allSetWords, ...state.customWords].map(word => [word.id, word])).values());
         }
         
         const activeWords: VocabWord[] = [];
@@ -165,7 +187,7 @@ export const useVocabStore = create<VocabStore>()(
         // Also include custom words
         activeWords.push(...state.customWords);
         
-        return activeWords;
+        return Array.from(new Map(activeWords.map(word => [word.id, word])).values());
       },
     }),
     {

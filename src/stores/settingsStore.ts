@@ -14,6 +14,7 @@ export const useSettingsStore = create<SettingsStore>()(
       autoSave: true,
       languageDirection: 'en-to-th',
       soldierType: 'soldier1',
+      randomizeSoldier: false,
       uiLanguage: 'en', // Default to English UI
       questionTypes: {
         multipleChoice: true,
@@ -31,6 +32,7 @@ export const useSettingsStore = create<SettingsStore>()(
       setAutoSave: (autoSave) => set({ autoSave }),
       setLanguageDirection: (direction) => set({ languageDirection: direction }),
       setSoldierType: (type) => set({ soldierType: type }),
+      setRandomizeSoldier: (randomizeSoldier) => set({ randomizeSoldier }),
       setUiLanguage: (language) => set({ uiLanguage: language }),
       setQuestionTypes: (types) => set({ questionTypes: types }),
     }),

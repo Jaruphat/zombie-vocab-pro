@@ -75,6 +75,8 @@ export interface PlayerAnimations {
   reload: string[];
 }
 
+export type PlayerShootStyle = 'base' | 'run' | 'jump' | 'crouch' | 'walk';
+
 export interface ZombieAnimations {
   walk: string[];
   attack: string[];
@@ -90,6 +92,7 @@ export interface GameSettings {
   autoSave: boolean;
   languageDirection: 'en-to-th' | 'th-to-en' | 'mixed';
   soldierType: 'soldier1' | 'soldier2' | 'soldier3' | 'soldier4';
+  randomizeSoldier: boolean;
   uiLanguage: 'th' | 'en'; // UI language selection
   questionTypes: {
     multipleChoice: boolean;
@@ -166,6 +169,7 @@ export interface SettingsStore extends GameSettings {
   setAutoSave: (enabled: boolean) => void;
   setLanguageDirection: (direction: GameSettings['languageDirection']) => void;
   setSoldierType: (type: GameSettings['soldierType']) => void;
+  setRandomizeSoldier: (enabled: boolean) => void;
   setUiLanguage: (language: GameSettings['uiLanguage']) => void;
   setQuestionTypes: (types: GameSettings['questionTypes']) => void;
 }

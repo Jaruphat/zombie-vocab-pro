@@ -1,11 +1,13 @@
 import React from 'react';
 import { BasicSprite } from './BasicSprite';
+import type { PlayerShootStyle } from '../../../types';
 
 interface PlayerSpriteProps {
   x?: number;
   y?: number;
   scale?: number;
-  state?: 'idle' | 'walking' | 'shooting' | 'hurt' | 'celebrating';
+  state?: 'idle' | 'walking' | 'running' | 'melee' | 'shooting' | 'hurt' | 'celebrating';
+  shootingStyle?: PlayerShootStyle;
   flipX?: boolean;
   onAnimationComplete?: (state: string) => void;
   className?: string;
@@ -16,6 +18,7 @@ export const PlayerSprite: React.FC<PlayerSpriteProps> = ({
   y = 0,
   scale = 1,
   state = 'idle',
+  shootingStyle = 'base',
   flipX = false,
   onAnimationComplete,
   className = ''
@@ -29,6 +32,7 @@ export const PlayerSprite: React.FC<PlayerSpriteProps> = ({
       width={60}
       height={80}
       scale={scale}
+      shootingStyle={shootingStyle}
       flipX={flipX}
       onAnimationComplete={onAnimationComplete}
       className={className}

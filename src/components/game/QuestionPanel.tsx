@@ -8,7 +8,6 @@ interface QuestionPanelProps {
   question: VocabQuestion | null;
   timeRemaining: number;
   onAnswer: (answer: string) => void;
-  onTimeUp: () => void;
   disabled?: boolean;
 }
 
@@ -16,7 +15,6 @@ export const QuestionPanel: React.FC<QuestionPanelProps> = ({
   question,
   timeRemaining,
   onAnswer,
-  onTimeUp,
   disabled = false
 }) => {
   const [selectedAnswer, setSelectedAnswer] = useState<string>('');
@@ -24,12 +22,6 @@ export const QuestionPanel: React.FC<QuestionPanelProps> = ({
   const [typedAnswer, setTypedAnswer] = useState<string>('');
   // const viewport = useViewport();
   const { t } = useTranslation();
-
-  useEffect(() => {
-    if (timeRemaining <= 0 && question) {
-      onTimeUp();
-    }
-  }, [timeRemaining, question, onTimeUp]);
 
   useEffect(() => {
     // Reset answers when new question appears
@@ -62,14 +54,14 @@ export const QuestionPanel: React.FC<QuestionPanelProps> = ({
     }
   };
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
+  const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !disabled) {
       handleSubmit();
     }
   };
 
   return (
-    <div className="mx-1 sm:mx-2 md:mx-4 mb-1 sm:mb-2 bg-black/30 backdrop-blur-sm rounded-xl p-2 sm:p-3">
+    <div className="w-full bg-black/35 backdrop-blur-sm rounded-xl p-2 sm:p-3 max-h-[34vh] sm:max-h-[38vh] overflow-y-auto">
       {/* Time Bar - Compact */}
       <div className="mb-1 sm:mb-2">
         <div className="w-full bg-white/20 rounded-full h-2 overflow-hidden">
@@ -117,9 +109,9 @@ export const QuestionPanel: React.FC<QuestionPanelProps> = ({
 
       {/* Letter Arrangement */}
       {question.type === 'letterArrangement' && question.scrambledLetters && (
-        <div className="mb-4 space-y-4">
+        <div className="mb-2 sm:mb-3 space-y-2 sm:space-y-3">
           {/* Answer Area */}
-          <div className="bg-gray-50 border-2 border-dashed border-gray-300 rounded-xl p-4 min-h-[60px] flex items-center justify-center flex-wrap gap-2">
+          <div className="bg-gray-50 border-2 border-dashed border-gray-300 rounded-xl p-2 sm:p-3 min-h-[50px] flex items-center justify-center flex-wrap gap-1.5 sm:gap-2">
             {arrangedLetters.length > 0 ? (
               arrangedLetters.map((letter, index) => (
                 <button
@@ -129,7 +121,7 @@ export const QuestionPanel: React.FC<QuestionPanelProps> = ({
                     newArranged.splice(index, 1);
                     setArrangedLetters(newArranged);
                   }}
-                  className="px-3 py-2 bg-blue-500 text-white rounded-lg font-bold text-lg hover:bg-blue-600 transition-all shadow-sm"
+                  className="px-2.5 sm:px-3 py-1.5 sm:py-2 bg-blue-500 text-white rounded-lg font-bold text-base sm:text-lg hover:bg-blue-600 transition-all shadow-sm"
                 >
                   {letter}
                 </button>
@@ -140,7 +132,7 @@ export const QuestionPanel: React.FC<QuestionPanelProps> = ({
           </div>
           
           {/* Available Letters */}
-          <div className="flex flex-wrap gap-2 justify-center">
+          <div className="flex flex-wrap gap-1.5 sm:gap-2 justify-center">
             {question.scrambledLetters
               .filter(letter => !arrangedLetters.includes(letter) || 
                 arrangedLetters.filter(l => l === letter).length < 
@@ -158,7 +150,7 @@ export const QuestionPanel: React.FC<QuestionPanelProps> = ({
                     }
                   }}
                   disabled={disabled}
-                  className="px-4 py-3 bg-gray-200 hover:bg-gray-300 disabled:opacity-50 text-gray-800 rounded-lg font-bold text-lg transition-all shadow-sm hover:shadow-md cursor-pointer disabled:cursor-not-allowed"
+                  className="px-3 sm:px-4 py-2 sm:py-2.5 bg-gray-200 hover:bg-gray-300 disabled:opacity-50 text-gray-800 rounded-lg font-bold text-base sm:text-lg transition-all shadow-sm hover:shadow-md cursor-pointer disabled:cursor-not-allowed"
                 >
                   {letter}
                 </button>
@@ -169,15 +161,15 @@ export const QuestionPanel: React.FC<QuestionPanelProps> = ({
 
       {/* Typing Input */}
       {(question.type === 'typing' || question.type === 'spelling') && (
-        <div className="mb-4">
+        <div className="mb-2 sm:mb-3">
           <input
             type="text"
             value={typedAnswer}
             onChange={(e) => setTypedAnswer(e.target.value)}
-            onKeyPress={handleKeyPress}
+            onKeyDown={handleKeyDown}
             disabled={disabled}
             placeholder={t('typeAnswerHere')}
-            className="w-full p-4 border-2 border-gray-200 rounded-xl focus:border-orange-500 focus:outline-none text-lg disabled:opacity-50"
+            className="w-full p-2.5 sm:p-3 border-2 border-gray-200 rounded-xl focus:border-orange-500 focus:outline-none text-base sm:text-lg disabled:opacity-50"
             autoFocus
           />
         </div>
@@ -188,7 +180,7 @@ export const QuestionPanel: React.FC<QuestionPanelProps> = ({
         <button
           onClick={handleSubmit}
           disabled={disabled || !typedAnswer.trim()}
-          className="w-full py-4 bg-orange-500 hover:bg-orange-600 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none text-base"
+          className="w-full py-2.5 sm:py-3 bg-orange-500 hover:bg-orange-600 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:scale-[1.02] active:scale-95 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none text-sm sm:text-base"
         >
           {t('submitAnswer')}
         </button>
@@ -196,7 +188,7 @@ export const QuestionPanel: React.FC<QuestionPanelProps> = ({
       
       {/* Progress Indicator for Letter Arrangement */}
       {question.type === 'letterArrangement' && (
-        <div className="text-center text-sm text-gray-500">
+        <div className="text-center text-xs sm:text-sm text-gray-400">
           {t('progress')}: {arrangedLetters.length} / {question.scrambledLetters?.length || 0} letters
         </div>
       )}

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useVocabStore } from '../../stores/vocabStore';
 import type { VocabWord, WordSet } from '../../types';
 import { useTranslation } from '../../hooks/useTranslation';
+import { GameButton } from '../ui/GameButton';
 
 interface VocabManagerProps {
   isOpen: boolean;
@@ -18,11 +19,11 @@ export const VocabManager: React.FC<VocabManagerProps> = ({ isOpen, onClose }) =
   const [importText, setImportText] = useState('');
   
   // Word Sets states
-  const [newWordSet, setNewWordSet] = useState({ 
+  const [newWordSet, setNewWordSet] = useState({
     name: '', 
     description: '', 
     color: '#3B82F6', 
-    icon: '📚'
+    icon: 'book'
   });
   const [editingWordSet, setEditingWordSet] = useState<WordSet | null>(null);
   const [selectedSetWords, setSelectedSetWords] = useState<VocabWord[]>([]);
@@ -133,7 +134,7 @@ export const VocabManager: React.FC<VocabManagerProps> = ({ isOpen, onClose }) =
     };
     
     vocabStore.addWordSet(wordSet);
-    setNewWordSet({ name: '', description: '', color: '#3B82F6', icon: '📚' });
+    setNewWordSet({ name: '', description: '', color: '#3B82F6', icon: 'book' });
     setSelectedSetWords([]);
   };
 
@@ -173,39 +174,52 @@ export const VocabManager: React.FC<VocabManagerProps> = ({ isOpen, onClose }) =
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-2 sm:p-4">
-      <div className="bg-white rounded-2xl shadow-2xl max-w-sm sm:max-w-2xl md:max-w-4xl w-full max-h-[95vh] sm:max-h-[90vh] overflow-hidden">
-        
+    <div className="vocab-game-modal fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-2 backdrop-blur-[2px] sm:p-4">
+      <div className="relative flex max-h-[95vh] w-full max-w-sm flex-col overflow-hidden rounded-3xl border-2 border-[#6f4e2e] bg-gradient-to-b from-[#5a3926] via-[#432b1d] to-[#2f1d14] shadow-[0_30px_60px_rgba(0,0,0,0.58)] sm:max-h-[90vh] sm:max-w-2xl md:max-w-5xl">
+        <div className="pointer-events-none absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_20%_8%,rgba(255,255,255,0.38),transparent_35%),radial-gradient(circle_at_82%_0%,rgba(255,255,255,0.2),transparent_38%)]" />
+
         {/* Header */}
-        <div className="bg-blue-600 text-white p-4 sm:p-6">
+        <div className="relative border-b border-[#8f6a40]/60 p-4 text-[#fff7df] sm:p-5">
+          <img
+            src="/assets/ui/jungle/load_bar/bg.png"
+            alt=""
+            className="pointer-events-none absolute inset-x-3 top-2 h-2 object-fill opacity-70"
+            draggable={false}
+          />
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="text-xl sm:text-2xl font-bold">📚 {t('vocabularyManager')}</h2>
-              <p className="opacity-90 text-sm sm:text-base">{t('addEditManage')}</p>
+              <h2 className="text-xl font-black uppercase tracking-wide sm:text-2xl">{t('vocabularyManager')}</h2>
+              <p className="text-xs text-[#f4ddaa] sm:text-sm">{t('addEditManage')}</p>
             </div>
             <button
               onClick={onClose}
-              className="text-white/80 hover:text-white text-2xl font-bold w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white/20 transition-all"
+              className="relative h-10 w-10 overflow-hidden rounded-xl border border-[#9f7f4f] bg-[#2a1a11] shadow-md transition hover:brightness-110"
+              aria-label="Close vocabulary manager"
             >
-              ×
+              <img
+                src="/assets/ui/jungle/btn/close.png"
+                alt=""
+                className="absolute inset-0 h-full w-full object-contain"
+                draggable={false}
+              />
             </button>
           </div>
         </div>
 
         {/* Tabs */}
-        <div className="border-b">
+        <div className="border-b border-[#8f6a40]/60 bg-[#2a1a11]/55 px-3 pt-2 sm:px-4">
           <div className="flex">
             {[
-              { id: 'words', label: `📝 ${t('manageWords')}` },
-              { id: 'sets', label: `📚 ${t('manageWordSets')}` }
+              { id: 'words', label: t('manageWords') },
+              { id: 'sets', label: t('manageWordSets') }
             ].map((tab) => (
               <button
                 key={tab.id}
-                onClick={() => setActiveTab(tab.id as any)}
-                className={`px-6 py-3 font-medium border-b-2 transition-all ${
+                onClick={() => setActiveTab(tab.id as 'words' | 'sets')}
+                className={`rounded-t-xl px-4 py-2 text-sm font-black uppercase tracking-wide transition-all sm:px-6 sm:py-3 ${
                   activeTab === tab.id
-                    ? 'border-blue-500 text-blue-600 bg-blue-50'
-                    : 'border-transparent text-gray-600 hover:text-blue-600 hover:bg-gray-50'
+                    ? 'border border-b-0 border-[#a57e4a] bg-[#f5ecd2] text-[#3a2518] shadow-[0_-4px_10px_rgba(0,0,0,0.15)]'
+                    : 'border border-transparent text-[#f5e5b8] hover:bg-[#3f2a1c]'
                 }`}
               >
                 {tab.label}
@@ -214,7 +228,7 @@ export const VocabManager: React.FC<VocabManagerProps> = ({ isOpen, onClose }) =
           </div>
         </div>
 
-        <div className="p-3 sm:p-6 overflow-y-auto max-h-[calc(95vh-200px)] sm:max-h-[calc(90vh-180px)]">
+        <div className="game-scroll relative min-h-0 flex-1 overflow-y-auto bg-[#f6efd8]/95 p-3 text-[#3d281a] sm:p-6">
           <>
             {activeTab === 'words' && (
               <>
@@ -224,11 +238,11 @@ export const VocabManager: React.FC<VocabManagerProps> = ({ isOpen, onClose }) =
                   {['all', 'default', 'custom'].map(f => (
                     <button
                       key={f}
-                      onClick={() => setFilter(f as any)}
+                      onClick={() => setFilter(f as 'all' | 'default' | 'custom')}
                       className={`px-4 py-2 rounded-lg font-medium transition-all ${
                         filter === f
-                          ? 'bg-purple-500 text-white'
-                          : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                          ? 'bg-[#c9781f] text-white'
+                          : 'bg-[#f4ead1] text-[#5d4228] hover:bg-[#ead9b5]'
                       }`}
                     >
                       {f === 'all' ? 'All Words' : f === 'default' ? 'Default' : 'Custom'}
@@ -244,35 +258,35 @@ export const VocabManager: React.FC<VocabManagerProps> = ({ isOpen, onClose }) =
                 <div className="flex gap-2">
                   <button
                     onClick={handleExportWords}
-                    className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-all font-medium"
+                    className="px-4 py-2 bg-[#5a8f2f] text-white rounded-lg hover:bg-[#4b7827] transition-all font-medium"
                   >
-                    📥 Export
+                    Export
                   </button>
                 </div>
               </div>
 
               {/* Add New Word */}
-              <div className="bg-gray-50 rounded-xl p-4 mb-6">
-                <h3 className="font-bold text-gray-800 mb-3">➕ Add New Word</h3>
+              <div className="bg-[#fdf6e4] rounded-xl p-4 mb-6">
+                <h3 className="font-bold text-[#3b2618] mb-3">Add New Word</h3>
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
                   <input
                     type="text"
                     placeholder="English word"
                     value={newWord.word}
                     onChange={(e) => setNewWord({ ...newWord, word: e.target.value })}
-                    className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-purple-500"
+                    className="px-3 py-2 border border-[#c8aa74] rounded-lg focus:outline-none focus:border-[#c9781f]"
                   />
                   <input
                     type="text"
                     placeholder="Thai meaning"
                     value={newWord.meaning}
                     onChange={(e) => setNewWord({ ...newWord, meaning: e.target.value })}
-                    className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-purple-500"
+                    className="px-3 py-2 border border-[#c8aa74] rounded-lg focus:outline-none focus:border-[#c9781f]"
                   />
                   <select
                     value={newWord.difficulty}
                     onChange={(e) => setNewWord({ ...newWord, difficulty: parseInt(e.target.value) })}
-                    className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-purple-500"
+                    className="px-3 py-2 border border-[#c8aa74] rounded-lg focus:outline-none focus:border-[#c9781f]"
                   >
                     <option value={1}>Easy (1)</option>
                     <option value={2}>Medium (2)</option>
@@ -280,7 +294,7 @@ export const VocabManager: React.FC<VocabManagerProps> = ({ isOpen, onClose }) =
                   </select>
                   <button
                     onClick={handleAddWord}
-                    className="px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-all font-medium"
+                    className="px-4 py-2 bg-[#c9781f] text-white rounded-lg hover:bg-[#b06716] transition-all font-medium"
                   >
                     Add Word
                   </button>
@@ -288,17 +302,17 @@ export const VocabManager: React.FC<VocabManagerProps> = ({ isOpen, onClose }) =
               </div>
 
               {/* Import Section */}
-              <div className="bg-blue-50 rounded-xl p-4 mb-6">
-                <h3 className="font-bold text-gray-800 mb-3">📝 Import Words</h3>
+              <div className="bg-[#f4ead1] rounded-xl p-4 mb-6">
+                <h3 className="font-bold text-[#3b2618] mb-3">Import Words</h3>
                 <textarea
                   placeholder="Paste JSON or CSV data here...&#10;CSV format: word,meaning,difficulty&#10;Example: hello,สวัสดี,1"
                   value={importText}
                   onChange={(e) => setImportText(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 h-24 resize-none"
+                  className="w-full px-3 py-2 border border-[#c8aa74] rounded-lg focus:outline-none focus:border-[#5a8f2f] h-24 resize-none"
                 />
                 <button
                   onClick={handleImportWords}
-                  className="mt-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-all font-medium"
+                  className="mt-2 px-4 py-2 bg-[#5a8f2f] text-white rounded-lg hover:bg-[#4b7827] transition-all font-medium"
                 >
                   Import Words
                 </button>
@@ -306,15 +320,15 @@ export const VocabManager: React.FC<VocabManagerProps> = ({ isOpen, onClose }) =
 
               {/* Word List */}
               <div className="space-y-2">
-                <h3 className="font-bold text-gray-800 mb-3">
-                  📖 Word List ({filteredWords.length} words)
+                <h3 className="font-bold text-[#3b2618] mb-3">
+                  Word List ({filteredWords.length} words)
                 </h3>
                 
-                <div className="space-y-2 max-h-96 overflow-y-auto">
+                <div className="game-scroll max-h-96 space-y-2 overflow-y-auto">
                   {filteredWords.map((word) => (
                     <div
                       key={word.id}
-                      className="flex items-center justify-between p-3 bg-white border border-gray-200 rounded-lg hover:shadow-sm transition-all"
+                      className="flex items-center justify-between p-3 bg-white border border-[#d9c59d] rounded-lg hover:shadow-sm transition-all"
                     >
                       <div className="flex-1">
                         {editingWord?.id === word.id ? (
@@ -323,18 +337,18 @@ export const VocabManager: React.FC<VocabManagerProps> = ({ isOpen, onClose }) =
                               type="text"
                               value={editingWord.word}
                               onChange={(e) => setEditingWord({ ...editingWord, word: e.target.value })}
-                              className="px-2 py-1 border border-gray-300 rounded focus:outline-none focus:border-purple-500"
+                              className="px-2 py-1 border border-[#c8aa74] rounded focus:outline-none focus:border-[#c9781f]"
                             />
                             <input
                               type="text"
                               value={editingWord.meaning}
                               onChange={(e) => setEditingWord({ ...editingWord, meaning: e.target.value })}
-                              className="px-2 py-1 border border-gray-300 rounded focus:outline-none focus:border-purple-500"
+                              className="px-2 py-1 border border-[#c8aa74] rounded focus:outline-none focus:border-[#c9781f]"
                             />
                             <select
                               value={editingWord.difficulty}
                               onChange={(e) => setEditingWord({ ...editingWord, difficulty: parseInt(e.target.value) })}
-                              className="px-2 py-1 border border-gray-300 rounded focus:outline-none focus:border-purple-500"
+                              className="px-2 py-1 border border-[#c8aa74] rounded focus:outline-none focus:border-[#c9781f]"
                             >
                               <option value={1}>1</option>
                               <option value={2}>2</option>
@@ -343,12 +357,12 @@ export const VocabManager: React.FC<VocabManagerProps> = ({ isOpen, onClose }) =
                           </div>
                         ) : (
                           <div className="grid grid-cols-3 gap-4">
-                            <span className="font-medium text-gray-800">{word.word}</span>
-                            <span className="text-gray-600">{word.meaning}</span>
-                            <span className="text-sm text-gray-500">
+                            <span className="font-medium text-[#3b2618]">{word.word}</span>
+                            <span className="text-[#5d4228]">{word.meaning}</span>
+                            <span className="text-sm text-[#7b5a38]">
                               Level {word.difficulty}
                               {vocabStore.customWords.includes(word) && (
-                                <span className="ml-2 px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs">Custom</span>
+                                <span className="ml-2 px-2 py-1 bg-[#dcedbc] text-[#3d5f1f] rounded text-xs">Custom</span>
                               )}
                             </span>
                           </div>
@@ -360,13 +374,13 @@ export const VocabManager: React.FC<VocabManagerProps> = ({ isOpen, onClose }) =
                           <>
                             <button
                               onClick={handleUpdateWord}
-                              className="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600 transition-all text-sm"
+                              className="px-3 py-1 bg-[#5a8f2f] text-white rounded hover:bg-[#4b7827] transition-all text-sm"
                             >
                               Save
                             </button>
                             <button
                               onClick={() => setEditingWord(null)}
-                              className="px-3 py-1 bg-gray-500 text-white rounded hover:bg-gray-600 transition-all text-sm"
+                              className="px-3 py-1 bg-[#775538] text-white rounded hover:bg-[#61432b] transition-all text-sm"
                             >
                               Cancel
                             </button>
@@ -375,14 +389,14 @@ export const VocabManager: React.FC<VocabManagerProps> = ({ isOpen, onClose }) =
                           <>
                             <button
                               onClick={() => handleEditWord(word)}
-                              className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 transition-all text-sm"
+                              className="px-3 py-1 bg-[#5a8f2f] text-white rounded hover:bg-[#4b7827] transition-all text-sm"
                             >
                               Edit
                             </button>
                             {vocabStore.customWords.includes(word) && (
                               <button
                                 onClick={() => handleDeleteWord(word.id)}
-                                className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 transition-all text-sm"
+                                className="px-3 py-1 bg-[#b64532] text-white rounded hover:bg-[#963827] transition-all text-sm"
                               >
                                 Delete
                               </button>
@@ -403,14 +417,14 @@ export const VocabManager: React.FC<VocabManagerProps> = ({ isOpen, onClose }) =
               <div className="space-y-6">
                 
                 {/* Add New Word Set Form */}
-                <div className="bg-gray-50 rounded-xl p-6">
-                  <h3 className="text-lg font-bold text-gray-800 mb-4">
+                <div className="bg-[#fdf6e4] rounded-xl p-6">
+                  <h3 className="text-lg font-bold text-[#3b2618] mb-4">
                     {editingWordSet ? t('editWordSet') : t('addWordSet')}
                   </h3>
                   
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                      <label className="block text-sm font-medium text-[#4a2f1b] mb-2">
                         {t('wordSetName')}
                       </label>
                       <input
@@ -424,12 +438,12 @@ export const VocabManager: React.FC<VocabManagerProps> = ({ isOpen, onClose }) =
                           }
                         }}
                         placeholder={t('wordSetName')}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="w-full px-3 py-2 border border-[#c8aa74] rounded-lg focus:ring-2 focus:ring-[#5a8f2f] focus:border-transparent"
                       />
                     </div>
                     
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                      <label className="block text-sm font-medium text-[#4a2f1b] mb-2">
                         {t('description')}
                       </label>
                       <input
@@ -443,12 +457,12 @@ export const VocabManager: React.FC<VocabManagerProps> = ({ isOpen, onClose }) =
                           }
                         }}
                         placeholder={t('description')}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="w-full px-3 py-2 border border-[#c8aa74] rounded-lg focus:ring-2 focus:ring-[#5a8f2f] focus:border-transparent"
                       />
                     </div>
                     
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                      <label className="block text-sm font-medium text-[#4a2f1b] mb-2">
                         {t('setColor')}
                       </label>
                       <div className="flex gap-2 items-center">
@@ -462,16 +476,16 @@ export const VocabManager: React.FC<VocabManagerProps> = ({ isOpen, onClose }) =
                               setNewWordSet({...newWordSet, color: e.target.value});
                             }
                           }}
-                          className="w-12 h-10 border border-gray-300 rounded-lg"
+                          className="w-12 h-10 border border-[#c8aa74] rounded-lg"
                         />
-                        <span className="text-sm text-gray-500">
+                        <span className="text-sm text-[#7b5a38]">
                           {editingWordSet ? editingWordSet.color : newWordSet.color}
                         </span>
                       </div>
                     </div>
                     
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                      <label className="block text-sm font-medium text-[#4a2f1b] mb-2">
                         {t('icon')}
                       </label>
                       <input
@@ -484,26 +498,26 @@ export const VocabManager: React.FC<VocabManagerProps> = ({ isOpen, onClose }) =
                             setNewWordSet({...newWordSet, icon: e.target.value});
                           }
                         }}
-                        placeholder="📚"
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        placeholder="book"
+                        className="w-full px-3 py-2 border border-[#c8aa74] rounded-lg focus:ring-2 focus:ring-[#5a8f2f] focus:border-transparent"
                       />
                     </div>
                   </div>
 
                   {/* Word Selection for Set */}
                   <div className="mb-4">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-[#4a2f1b] mb-2">
                       {t('selectWords')} ({selectedSetWords.length} {t('words')})
                     </label>
-                    <div className="max-h-40 overflow-y-auto border border-gray-300 rounded-lg p-3 bg-white">
+                    <div className="game-scroll max-h-40 overflow-y-auto rounded-lg border border-[#c8aa74] bg-white p-3">
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                         {allWords.map((word) => (
-                          <label key={word.id} className="flex items-center gap-2 cursor-pointer p-2 hover:bg-gray-50 rounded">
+                          <label key={word.id} className="flex items-center gap-2 cursor-pointer p-2 hover:bg-[#fdf6e4] rounded">
                             <input
                               type="checkbox"
                               checked={selectedSetWords.some(w => w.id === word.id)}
                               onChange={() => handleToggleWordInSet(word)}
-                              className="rounded border-gray-300 text-blue-500 focus:ring-blue-500"
+                              className="rounded border-[#c8aa74] text-blue-500 focus:ring-[#5a8f2f]"
                             />
                             <span className="text-sm">
                               <strong>{word.word}</strong> - {word.meaning}
@@ -517,9 +531,9 @@ export const VocabManager: React.FC<VocabManagerProps> = ({ isOpen, onClose }) =
                   <div className="flex gap-3">
                     <button
                       onClick={editingWordSet ? handleUpdateWordSet : handleAddWordSet}
-                      className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-all font-medium"
+                      className="px-6 py-2 bg-[#5a8f2f] text-white rounded-lg hover:bg-[#4b7827] transition-all font-medium"
                     >
-                      {editingWordSet ? `💾 ${t('saveChanges')}` : `➕ ${t('addWordSetAction')}`}
+                      {editingWordSet ? t('saveChanges') : t('addWordSetAction')}
                     </button>
                     
                     {editingWordSet && (
@@ -528,9 +542,9 @@ export const VocabManager: React.FC<VocabManagerProps> = ({ isOpen, onClose }) =
                           setEditingWordSet(null);
                           setSelectedSetWords([]);
                         }}
-                        className="px-6 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-all"
+                        className="px-6 py-2 bg-[#775538] text-white rounded-lg hover:bg-[#61432b] transition-all"
                       >
-                        ❌ {t('cancel')}
+                        {t('cancel')}
                       </button>
                     )}
                   </div>
@@ -538,12 +552,12 @@ export const VocabManager: React.FC<VocabManagerProps> = ({ isOpen, onClose }) =
 
                 {/* Word Sets List */}
                 <div>
-                  <h3 className="text-lg font-bold text-gray-800 mb-4">{t('allWordSets')}</h3>
+                  <h3 className="text-lg font-bold text-[#3b2618] mb-4">{t('allWordSets')}</h3>
                   <div className="grid gap-4 md:grid-cols-2">
                     {vocabStore.wordSets.map((wordSet) => (
                       <div
                         key={wordSet.id}
-                        className="p-4 border border-gray-200 rounded-xl hover:shadow-lg transition-all"
+                        className="p-4 border border-[#d9c59d] rounded-xl hover:shadow-lg transition-all"
                         style={{ borderLeftColor: wordSet.color, borderLeftWidth: '4px' }}
                       >
                         <div className="flex items-center justify-between mb-3">
@@ -555,37 +569,37 @@ export const VocabManager: React.FC<VocabManagerProps> = ({ isOpen, onClose }) =
                               {wordSet.icon}
                             </div>
                             <div>
-                              <h4 className="font-bold text-gray-800">{wordSet.name}</h4>
-                              <p className="text-sm text-gray-600">{wordSet.words.length} {t('words')}</p>
+                              <h4 className="font-bold text-[#3b2618]">{wordSet.name}</h4>
+                              <p className="text-sm text-[#5d4228]">{wordSet.words.length} {t('words')}</p>
                             </div>
                           </div>
                           <div className="flex gap-2">
                             <button
                               onClick={() => handleEditWordSet(wordSet)}
-                              className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 transition-all text-sm"
+                              className="px-3 py-1 bg-[#5a8f2f] text-white rounded hover:bg-[#4b7827] transition-all text-sm"
                             >
-                              ✏️ {t('edit')}
+                              {t('edit')}
                             </button>
                             <button
                               onClick={() => handleDeleteWordSet(wordSet.id)}
-                              className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 transition-all text-sm"
+                              className="px-3 py-1 bg-[#b64532] text-white rounded hover:bg-[#963827] transition-all text-sm"
                             >
-                              🗑️ {t('delete')}
+                              {t('delete')}
                             </button>
                           </div>
                         </div>
                         
-                        <p className="text-sm text-gray-600 mb-2">{wordSet.description}</p>
+                        <p className="text-sm text-[#5d4228] mb-2">{wordSet.description}</p>
                         
                         {/* Preview words */}
                         <div className="flex flex-wrap gap-1">
                           {wordSet.words.slice(0, 5).map((word) => (
-                            <span key={word.id} className="px-2 py-1 bg-gray-100 text-xs rounded text-gray-600">
+                            <span key={word.id} className="px-2 py-1 bg-[#f4ead1] text-xs rounded text-[#5d4228]">
                               {word.word}
                             </span>
                           ))}
                           {wordSet.words.length > 5 && (
-                            <span className="px-2 py-1 text-xs text-gray-500">
+                            <span className="px-2 py-1 text-xs text-[#7b5a38]">
                               +{wordSet.words.length - 5} {t('more')}
                             </span>
                           )}
@@ -595,8 +609,8 @@ export const VocabManager: React.FC<VocabManagerProps> = ({ isOpen, onClose }) =
                   </div>
                   
                   {vocabStore.wordSets.length === 0 && (
-                    <div className="text-center py-12 text-gray-500">
-                      <p className="text-xl mb-2">📚</p>
+                    <div className="text-center py-12 text-[#7b5a38]">
+                      <p className="text-xl mb-2">SETS</p>
                       <p>{t('noWordSets')}</p>
                       <p className="text-sm">{t('createFirstSet')}</p>
                     </div>
@@ -609,17 +623,16 @@ export const VocabManager: React.FC<VocabManagerProps> = ({ isOpen, onClose }) =
         </div>
 
         {/* Footer */}
-        <div className="p-6 bg-gray-50 border-t">
-          <div className="flex gap-3 justify-end">
-            <button
-              onClick={onClose}
-              className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95 transition-all duration-200 text-base"
-            >
-              ✅ Done
-            </button>
+        <div className="shrink-0 border-t border-[#8f6a40]/60 px-3 py-3 sm:px-5 sm:py-4">
+          <div className="flex justify-end">
+            <GameButton variant="primary" size="md" onClick={onClose}>
+              Done
+            </GameButton>
           </div>
         </div>
       </div>
     </div>
   );
 };
+
+

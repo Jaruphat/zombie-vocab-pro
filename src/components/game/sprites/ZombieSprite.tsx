@@ -18,7 +18,7 @@ export const ZombieSprite: React.FC<ZombieSpriteProps> = ({
   y = 0,
   scale = 1,
   state = 'idle',
-  variant = 3, // Default to variant 3 (variants 1,2,11 have missing files)
+  variant = 1,
   flipX = false,
   onAnimationComplete,
   className = ''

@@ -1,6 +1,7 @@
 import React from 'react';
 import { useVocabStore } from '../../stores/vocabStore';
 import { useTranslation } from '../../hooks/useTranslation';
+import { GameButton } from '../ui/GameButton';
 
 interface WordSetsSelectorProps {
   isOpen: boolean;
@@ -16,143 +17,145 @@ export const WordSetsSelector: React.FC<WordSetsSelectorProps> = ({ isOpen, onCl
   const handleSetToggle = (setId: string) => {
     const isSelected = vocabStore.selectedWordSets.includes(setId);
     if (isSelected) {
-      // Remove from selection (but keep at least one selected)
       if (vocabStore.selectedWordSets.length > 1) {
-        vocabStore.setSelectedWordSets(
-          vocabStore.selectedWordSets.filter(id => id !== setId)
-        );
+        vocabStore.setSelectedWordSets(vocabStore.selectedWordSets.filter((id) => id !== setId));
       }
-    } else {
-      // Add to selection
-      vocabStore.setSelectedWordSets([...vocabStore.selectedWordSets, setId]);
+      return;
     }
+
+    vocabStore.setSelectedWordSets([...vocabStore.selectedWordSets, setId]);
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-      <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl max-w-2xl w-full mx-4 max-h-[80vh] overflow-hidden">
-        
-        {/* Header */}
-        <div className="bg-gradient-to-r from-purple-500 to-blue-500 p-6 text-white">
-          <div className="flex items-center justify-between">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-2 sm:p-4 backdrop-blur-[2px]">
+      <div className="relative mx-auto flex max-h-[90vh] w-full max-w-sm flex-col overflow-hidden rounded-3xl border-2 border-[#6f4e2e] bg-gradient-to-b from-[#5a3926] via-[#432b1d] to-[#2f1d14] shadow-[0_28px_55px_rgba(0,0,0,0.55)] sm:max-w-3xl">
+        <div className="pointer-events-none absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_20%_8%,rgba(255,255,255,0.35),transparent_34%),radial-gradient(circle_at_80%_0%,rgba(255,255,255,0.2),transparent_38%)]" />
+
+        <div className="relative border-b border-[#8f6a40]/60 px-3 py-3 sm:px-5 sm:py-4">
+          <div className="flex items-center justify-between gap-3">
             <div>
-              <h2 className="text-2xl font-bold flex items-center gap-2">
-                📚 {t('selectWordSets')}
+              <h2 className="text-lg font-black uppercase tracking-wide text-[#fff7df] sm:text-2xl">
+                {t('selectWordSets')}
               </h2>
-              <p className="text-purple-100 mt-1">{t('chooseWordSetsDescription')}</p>
+              <p className="text-xs text-[#f4ddaa] sm:text-sm">{t('chooseWordSetsDescription')}</p>
             </div>
             <button
               onClick={onClose}
-              className="p-2 hover:bg-white/20 rounded-full transition-colors"
+              type="button"
+              className="relative h-10 w-10 shrink-0 overflow-hidden rounded-xl border border-[#9f7f4f] bg-[#2a1a11] shadow-md transition hover:brightness-110"
+              aria-label="Close word set selector"
             >
-              ✕
+              <img
+                src="/assets/ui/jungle/btn/close.png"
+                alt=""
+                className="absolute inset-0 h-full w-full object-contain"
+                draggable={false}
+              />
             </button>
           </div>
         </div>
 
-        {/* Content */}
-        <div className="p-6 overflow-y-auto max-h-[60vh]">
-          <div className="grid gap-4 md:grid-cols-2">
+        <div className="game-scroll relative min-h-0 flex-1 space-y-4 overflow-y-auto p-3 sm:p-5">
+          <div className="grid gap-3 md:grid-cols-2">
             {vocabStore.wordSets.map((wordSet) => {
               const isSelected = vocabStore.selectedWordSets.includes(wordSet.id);
-              
+
               return (
-                <div
+                <button
                   key={wordSet.id}
-                  className={`relative p-4 rounded-xl border-2 cursor-pointer transition-all duration-200 hover:scale-105 ${
-                    isSelected
-                      ? 'border-blue-500 bg-blue-50'
-                      : 'border-gray-200 bg-white hover:border-gray-300'
-                  }`}
+                  type="button"
                   onClick={() => handleSetToggle(wordSet.id)}
+                  className={`relative rounded-2xl border p-3 text-left transition sm:p-4 ${
+                    isSelected
+                      ? 'border-emerald-300 bg-[#fff8df] shadow-[0_10px_20px_rgba(0,0,0,0.2)]'
+                      : 'border-[#9f7c4f] bg-[#f2e5c7] hover:bg-[#f7edd4]'
+                  }`}
                 >
-                  {/* Selection indicator */}
-                  <div className={`absolute top-3 right-3 w-6 h-6 rounded-full flex items-center justify-center text-white text-sm font-bold ${
-                    isSelected ? 'bg-blue-500' : 'bg-gray-300'
-                  }`}>
-                    {isSelected ? '✓' : ''}
+                  <div className="absolute right-3 top-3">
+                    <span
+                      className={`flex h-6 w-6 items-center justify-center rounded-full border text-xs font-black ${
+                        isSelected
+                          ? 'border-emerald-700 bg-emerald-500 text-white'
+                          : 'border-[#856338] bg-[#d7bc8a] text-[#5a3926]'
+                      }`}
+                    >
+                      {isSelected ? 'OK' : ''}
+                    </span>
                   </div>
 
-                  {/* Word Set Info */}
                   <div className="pr-8">
-                    <div className="flex items-center gap-3 mb-2">
-                      <div 
-                        className="w-12 h-12 rounded-xl flex items-center justify-center text-2xl"
-                        style={{ backgroundColor: wordSet.color + '20', color: wordSet.color }}
+                    <div className="mb-2 flex items-center gap-3">
+                      <div
+                        className="flex h-11 w-11 items-center justify-center rounded-xl border border-white/60 text-xl shadow-inner"
+                        style={{ backgroundColor: `${wordSet.color}30`, color: wordSet.color }}
                       >
                         {wordSet.icon}
                       </div>
                       <div>
-                        <h3 className="font-bold text-gray-800">{wordSet.name}</h3>
-                        <p className="text-sm text-gray-600">{wordSet.words.length} คำ</p>
+                        <h3 className="font-black text-[#3b2618]">{wordSet.name}</h3>
+                        <p className="text-xs font-semibold text-[#6b4a2d]">{wordSet.words.length} words</p>
                       </div>
                     </div>
-                    <p className="text-sm text-gray-600 mb-3">{wordSet.description}</p>
-                    
-                    {/* Sample words preview */}
+
+                    <p className="mb-2 text-sm text-[#5d4228]">{wordSet.description}</p>
+
                     <div className="flex flex-wrap gap-1">
                       {wordSet.words.slice(0, 4).map((word) => (
-                        <span 
+                        <span
                           key={word.id}
-                          className="px-2 py-1 bg-gray-100 text-xs rounded-md text-gray-600"
+                          className="rounded-md border border-[#d9c69e] bg-[#fff9eb] px-2 py-0.5 text-[11px] font-semibold text-[#63452a]"
                         >
                           {word.word}
                         </span>
                       ))}
                       {wordSet.words.length > 4 && (
-                        <span className="px-2 py-1 text-xs text-gray-500">
-                          +{wordSet.words.length - 4} เพิ่มเติม
+                        <span className="rounded-md border border-[#d9c69e] bg-[#fff9eb] px-2 py-0.5 text-[11px] font-semibold text-[#7a5737]">
+                          +{wordSet.words.length - 4}
                         </span>
                       )}
                     </div>
                   </div>
-                </div>
+                </button>
               );
             })}
           </div>
 
-          {/* Selected Summary */}
-          <div className="mt-6 p-4 bg-blue-50 rounded-xl">
-            <h4 className="font-bold text-gray-800 mb-2">
-              📊 {t('selectedSetsCount')} ({vocabStore.selectedWordSets.length})
+          <div className="rounded-2xl border border-[#8f6a40] bg-[#f6efd8]/95 p-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.55)] sm:p-4">
+            <h4 className="mb-2 text-sm font-black uppercase tracking-wide text-[#3d281a]">
+              {t('selectedSetsCount')} ({vocabStore.selectedWordSets.length})
             </h4>
-            <div className="text-sm text-gray-600">
-              <p>จำนวนคำทั้งหมด: {vocabStore.getActiveWords().length} คำ</p>
-              <div className="flex flex-wrap gap-2 mt-2">
-                {vocabStore.selectedWordSets.map((setId) => {
-                  const wordSet = vocabStore.wordSets.find(s => s.id === setId);
-                  return wordSet ? (
-                    <span 
-                      key={setId}
-                      className="px-2 py-1 bg-blue-200 text-blue-800 text-xs rounded-md"
-                    >
-                      {wordSet.icon} {wordSet.name.split(': ')[1]}
-                    </span>
-                  ) : null;
-                })}
-              </div>
+            <p className="text-sm font-semibold text-[#5d4228]">
+              Total words: {vocabStore.getActiveWords().length}
+            </p>
+            <div className="mt-2 flex flex-wrap gap-2">
+              {vocabStore.selectedWordSets.map((setId) => {
+                const wordSet = vocabStore.wordSets.find((set) => set.id === setId);
+                if (!wordSet) return null;
+                return (
+                  <span
+                    key={setId}
+                    className="rounded-full border border-[#c3a06e] bg-[#fff6df] px-2.5 py-1 text-xs font-bold text-[#5a3926]"
+                  >
+                    {wordSet.icon} {wordSet.name.includes(': ') ? wordSet.name.split(': ')[1] : wordSet.name}
+                  </span>
+                );
+              })}
             </div>
           </div>
         </div>
 
-        {/* Footer */}
-        <div className="p-6 bg-gray-50 border-t">
-          <div className="flex gap-3">
-            <button
-              onClick={onClose}
-              className="flex-1 px-4 py-3 bg-gradient-to-r from-green-500 to-blue-500 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95 transition-all duration-200"
+        <div className="relative shrink-0 border-t border-[#8f6a40]/60 px-3 py-3 sm:px-5 sm:py-4">
+          <div className="flex flex-wrap items-center justify-end gap-2 sm:gap-3">
+            <GameButton
+              variant="secondary"
+              size="sm"
+              onClick={() => vocabStore.setSelectedWordSets(vocabStore.wordSets.map((set) => set.id))}
             >
-              ✅ เสร็จสิ้น
-            </button>
-            <button
-              onClick={() => {
-                // Select all sets
-                vocabStore.setSelectedWordSets(vocabStore.wordSets.map(s => s.id));
-              }}
-              className="px-4 py-3 bg-gray-500 text-white font-medium rounded-xl hover:bg-gray-600 transition-colors"
-            >
-              🎯 เลือกทั้งหมด
-            </button>
+              Select All
+            </GameButton>
+            <GameButton variant="primary" size="md" onClick={onClose}>
+              Done
+            </GameButton>
           </div>
         </div>
       </div>
