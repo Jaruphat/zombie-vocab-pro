@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { QuestionPanel } from './QuestionPanel';
 import { useGameStore } from '../../stores/gameStore';
 import { useSettingsStore } from '../../stores/settingsStore';
-import type { VocabQuestion, GameSettings, PlayerShootStyle } from '../../types';
+import type { VocabQuestion, GameSettings, PlayerShootStyle, VocabQuestionType } from '../../types';
 import { useVocabStore } from '../../stores/vocabStore';
 import { PlayerSprite, ZombieSprite } from './sprites';
 import { WordSetsSelector } from '../vocabulary/WordSetsSelector';
@@ -306,7 +306,7 @@ export const SimpleEnhancedGame: React.FC<SimpleEnhancedGameProps> = ({ scene, o
   const projectileTimeoutsRef = useRef<number[]>([]);
   const shootRecoveryTimeoutRef = useRef<number | null>(null);
   const spawnTimeoutRef = useRef<number | null>(null);
-  const multipleChoiceSolvedWordIdsRef = useRef<Set<string>>(new Set());
+  const masteredWordIdsRef = useRef<Set<string>>(new Set());
 
   // Use refs to store current values
   const currentQuestionRef = useRef(currentQuestion);
@@ -355,8 +355,8 @@ export const SimpleEnhancedGame: React.FC<SimpleEnhancedGameProps> = ({ scene, o
     };
   }, []);
 
-  const clearMultipleChoiceProgress = useCallback(() => {
-    multipleChoiceSolvedWordIdsRef.current.clear();
+  const clearMasteredProgress = useCallback(() => {
+    masteredWordIdsRef.current.clear();
   }, []);
 
   const rollRandomSoldierIfEnabled = useCallback((forceDifferent = true) => {
@@ -652,32 +652,56 @@ export const SimpleEnhancedGame: React.FC<SimpleEnhancedGameProps> = ({ scene, o
       : settingsStore.languageDirection;
 
     // Determine question type
+    const definitionCapableWords = words.filter((entry) => entry.englishDefinition?.trim());
     const availableTypes = Object.entries(settingsStore.questionTypes)
-      .filter(([, enabled]) => enabled)
-      .map(([type]) => type as 'multipleChoice' | 'typing' | 'spelling' | 'letterArrangement');
+      .filter(([type, enabled]) => {
+        if (!enabled) return false;
+        if (type === 'definitionMatch') {
+          return definitionCapableWords.length > 0;
+        }
+        return true;
+      })
+      .map(([type]) => type as VocabQuestionType);
 
     const questionType = availableTypes.length > 0
       ? availableTypes[Math.floor(Math.random() * availableTypes.length)]
       : 'multipleChoice';
 
-    let candidateWords = words;
-    if (questionType === 'multipleChoice') {
-      const unseenWords = words.filter(word => !multipleChoiceSolvedWordIdsRef.current.has(word.id));
+    let candidateWords = questionType === 'definitionMatch' ? definitionCapableWords : words;
+    if (questionType === 'multipleChoice' || questionType === 'definitionMatch') {
+      const unseenWords = candidateWords.filter(word => !masteredWordIdsRef.current.has(word.id));
       if (unseenWords.length > 0) {
         candidateWords = unseenWords;
       }
     }
 
-    const word = candidateWords[Math.floor(Math.random() * candidateWords.length)];
+    const word =
+      candidateWords[Math.floor(Math.random() * candidateWords.length)] ??
+      words[Math.floor(Math.random() * words.length)];
 
     // Generate question based on direction and type
-    const questionWord = direction === 'en-to-th' ? word.word : word.meaning;
-    const correctAnswer = direction === 'en-to-th' ? word.meaning : word.word;
+    let questionWord = direction === 'en-to-th' ? word.word : word.meaning;
+    let correctAnswer = direction === 'en-to-th' ? word.meaning : word.word;
 
     let options: string[] = [];
     let scrambledLetters: string[] = [];
 
-    if (questionType === 'multipleChoice') {
+    if (questionType === 'definitionMatch') {
+      questionWord = word.englishDefinition ?? word.word;
+      correctAnswer = word.word;
+
+      const wrongOptions = words
+        .filter((entry) => entry.id !== word.id)
+        .sort(() => Math.random() - 0.5)
+        .slice(0, 3)
+        .map((entry) => entry.word);
+
+      while (wrongOptions.length < 3) {
+        wrongOptions.push(`Choice ${wrongOptions.length + 1}`);
+      }
+
+      options = [correctAnswer, ...wrongOptions].sort(() => Math.random() - 0.5);
+    } else if (questionType === 'multipleChoice') {
       // Generate wrong options from the same direction
       const wrongOptions = words
         .filter(w => w.id !== word.id)
@@ -707,7 +731,7 @@ export const SimpleEnhancedGame: React.FC<SimpleEnhancedGameProps> = ({ scene, o
       options,
       correctAnswer,
       timeLimit: 10000, // 10 seconds
-      direction,
+      direction: questionType === 'definitionMatch' ? undefined : direction,
       scrambledLetters
     };
   }, [settingsStore.languageDirection, settingsStore.questionTypes, vocabStore]);
@@ -717,8 +741,8 @@ export const SimpleEnhancedGame: React.FC<SimpleEnhancedGameProps> = ({ scene, o
   }, [generateQuestion]);
 
   useEffect(() => {
-    clearMultipleChoiceProgress();
-  }, [clearMultipleChoiceProgress, selectedWordSetsKey, vocabStore.customWords.length]);
+    clearMasteredProgress();
+  }, [clearMasteredProgress, selectedWordSetsKey, vocabStore.customWords.length]);
 
   useEffect(() => {
     return () => {
@@ -727,9 +751,9 @@ export const SimpleEnhancedGame: React.FC<SimpleEnhancedGameProps> = ({ scene, o
       setScreenShakeOffset({ x: 0, y: 0 });
       resetPlayerHp();
       clearShootRecoveryTimeout();
-      clearMultipleChoiceProgress();
+      clearMasteredProgress();
     };
-  }, [clearMultipleChoiceProgress, clearProjectileTimeouts, clearShootRecoveryTimeout, clearSpawnTimeout, resetPlayerHp]);
+  }, [clearMasteredProgress, clearProjectileTimeouts, clearShootRecoveryTimeout, clearSpawnTimeout, resetPlayerHp]);
 
   useEffect(() => {
     if (scene !== 'game') {
@@ -737,7 +761,7 @@ export const SimpleEnhancedGame: React.FC<SimpleEnhancedGameProps> = ({ scene, o
       clearProjectileTimeouts();
       setScreenShakeOffset({ x: 0, y: 0 });
       resetPlayerHp();
-      clearMultipleChoiceProgress();
+      clearMasteredProgress();
       setBulletEffects([]);
       setImpactEffects([]);
       setShowMuzzleFlash(false);
@@ -745,7 +769,7 @@ export const SimpleEnhancedGame: React.FC<SimpleEnhancedGameProps> = ({ scene, o
       setIsRecoiling(false);
       returnPlayerToReady();
     }
-  }, [clearMultipleChoiceProgress, clearProjectileTimeouts, clearSpawnTimeout, resetPlayerHp, returnPlayerToReady, scene]);
+  }, [clearMasteredProgress, clearProjectileTimeouts, clearSpawnTimeout, resetPlayerHp, returnPlayerToReady, scene]);
 
   // Zombie spawning system - one by one spawning
   useEffect(() => {
@@ -916,16 +940,16 @@ export const SimpleEnhancedGame: React.FC<SimpleEnhancedGameProps> = ({ scene, o
     if (correct) {
       gameStore.addScore(points);
 
-      if (currentQuestion.type === 'multipleChoice') {
-        multipleChoiceSolvedWordIdsRef.current.add(currentQuestion.word.id);
+      if (currentQuestion.type === 'multipleChoice' || currentQuestion.type === 'definitionMatch') {
+        masteredWordIdsRef.current.add(currentQuestion.word.id);
 
         const activeWordIds = Array.from(
           new Set(vocabStore.getActiveWords().map((word) => word.id))
         );
-        const solvedCount = activeWordIds.filter((id) => multipleChoiceSolvedWordIdsRef.current.has(id)).length;
+        const solvedCount = activeWordIds.filter((id) => masteredWordIdsRef.current.has(id)).length;
 
         if (activeWordIds.length > 0 && solvedCount >= activeWordIds.length) {
-          clearMultipleChoiceProgress();
+          clearMasteredProgress();
 
           const runtimeGameStore = useGameStore.getState();
           const nextLevel = Math.max(2, runtimeGameStore.level + 1);
@@ -1084,15 +1108,15 @@ export const SimpleEnhancedGame: React.FC<SimpleEnhancedGameProps> = ({ scene, o
 
   // Tuning knobs for lane alignment:
   // Increase px => move sprite up, decrease px => move sprite down.
-  const playerGroundBottom = `calc(24% + ${SOLDIER_GROUND_LANE_OFFSET_PX[settingsStore.soldierType]}px)`;
-  const zombieGroundBottom = `calc(24% + ${ZOMBIE_GROUND_LANE_OFFSET_PX}px)`;
+  const playerGroundBottom = `calc(var(--player-ground, 22%) + ${SOLDIER_GROUND_LANE_OFFSET_PX[settingsStore.soldierType]}px)`;
+  const zombieGroundBottom = `calc(var(--player-ground, 22%) + ${ZOMBIE_GROUND_LANE_OFFSET_PX}px)`;
   const muzzleBottom = SOLDIER_MUZZLE_BOTTOM_PCT[settingsStore.soldierType];
 
   return (
-    <div className="relative h-full flex flex-col">
+    <div className="relative h-full flex flex-col landscape:flex-row portrait:[--player-ground:22%] landscape:[--player-ground:10%]">
       {/* Simple Game Canvas */}
       <div
-        className="relative flex-1 min-h-0 rounded-xl overflow-hidden max-w-6xl mx-auto w-full"
+        className="relative flex-1 min-h-0 min-w-0 rounded-xl overflow-hidden max-w-6xl mx-auto w-full landscape:h-full"
         style={{
           transform: `translate3d(${screenShakeOffset.x.toFixed(2)}px, ${screenShakeOffset.y.toFixed(2)}px, 0)`,
           willChange: 'transform',
@@ -1207,7 +1231,7 @@ export const SimpleEnhancedGame: React.FC<SimpleEnhancedGameProps> = ({ scene, o
             <PlayerSprite
               x={0}
               y={0}
-              scale={settingsStore.soldierType === 'soldier2' ? 2.5 : 2.0} // Scale back to normal for Bravo
+              scale={settingsStore.soldierType === 'soldier2' ? 2.0 : 1.5} // Reduced scale layout
               state={playerState}
               shootingStyle={playerShootStyle}
               flipX={false}
@@ -1277,7 +1301,7 @@ export const SimpleEnhancedGame: React.FC<SimpleEnhancedGameProps> = ({ scene, o
                 <ZombieSprite
                   x={0}
                   y={0}
-                  scale={1.8} // Reduced base scale, now handled by CSS transform
+                  scale={1.35} // Reduced base scale for new layout
                   state={zombie.state}
                   variant={zombie.variant} // Pass the random variant
                   flipX={true} // Flip horizontally to face forward
@@ -1292,7 +1316,7 @@ export const SimpleEnhancedGame: React.FC<SimpleEnhancedGameProps> = ({ scene, o
         {/* Combat Instructions */}
         {!currentQuestion && !showResult && showInstructions && (
           <div
-            className="absolute inset-0 flex items-center justify-center rounded-xl bg-black/45 p-2 sm:p-3"
+            className="absolute inset-0 z-50 flex items-center justify-center rounded-xl bg-black/45 p-2 sm:p-3"
             data-testid="combat-instructions"
           >
             <div className="relative w-full max-w-sm overflow-hidden rounded-3xl border-2 border-[#d9c5a6]/55 bg-gradient-to-b from-[#fffaf1] via-[#f3e8d3] to-[#e6d6bc] p-3 text-[#4a3a28] shadow-[0_22px_45px_rgba(0,0,0,0.55)] sm:max-w-2xl sm:p-5">
@@ -1375,6 +1399,20 @@ export const SimpleEnhancedGame: React.FC<SimpleEnhancedGameProps> = ({ scene, o
                       />
                       <span className="font-semibold">Letter Arrangement</span>
                     </label>
+                    <label className="flex cursor-pointer items-center gap-2 rounded-lg bg-[#f8efe1] px-2 py-1.5">
+                      <input
+                        type="checkbox"
+                        checked={settingsStore.questionTypes.definitionMatch}
+                        onChange={(e) =>
+                          settingsStore.setQuestionTypes({
+                            ...settingsStore.questionTypes,
+                            definitionMatch: e.target.checked,
+                          })
+                        }
+                        className="h-4 w-4 rounded accent-emerald-600"
+                      />
+                      <span className="font-semibold">Definition Match</span>
+                    </label>
                   </div>
                 </div>
 
@@ -1388,7 +1426,7 @@ export const SimpleEnhancedGame: React.FC<SimpleEnhancedGameProps> = ({ scene, o
                   className="mx-auto w-full max-w-[420px]"
                   onClick={() => {
                     setShowInstructions(false);
-                    clearMultipleChoiceProgress();
+                    clearMasteredProgress();
                     clearProjectileTimeouts();
                     setScreenShakeOffset({ x: 0, y: 0 });
                     resetPlayerHp();
@@ -1431,7 +1469,7 @@ export const SimpleEnhancedGame: React.FC<SimpleEnhancedGameProps> = ({ scene, o
 
         {/* Result Display */}
         {showResult && (
-          <div className="absolute inset-0 z-40 flex items-center justify-center rounded-xl bg-black/50 p-3 sm:p-4">
+          <div className="absolute inset-0 z-50 flex items-center justify-center rounded-xl bg-black/50 p-3 sm:p-4">
             <div
               className={`relative w-full max-w-sm overflow-hidden rounded-3xl border-2 p-5 text-center shadow-[0_25px_45px_rgba(0,0,0,0.58)] sm:p-6 ${showResult.correct
                 ? 'border-[#9dcf79] bg-gradient-to-b from-[#fffef9] via-[#f8f2e6] to-[#ecdfc7] text-[#3f5f2f]'
@@ -1471,9 +1509,9 @@ export const SimpleEnhancedGame: React.FC<SimpleEnhancedGameProps> = ({ scene, o
 
       </div> {/* End of Game Canvas */}
 
-      {/* Question Panel - Docked below game canvas to avoid blocking gameplay */}
+      {/* Question Panel - Docked below game canvas or side in landscape */}
       {currentQuestion && (
-        <div className="relative z-40 px-1 sm:px-2 md:px-3 pb-1 sm:pb-2">
+        <div className="relative z-40 px-1 sm:px-2 md:px-3 pb-1 sm:pb-2 flex-shrink-0 landscape:w-80 landscape:py-2 landscape:h-full landscape:overflow-y-auto">
           <QuestionPanel
             question={currentQuestion}
             timeRemaining={questionTimeRemaining}
@@ -1508,7 +1546,7 @@ export const SimpleEnhancedGame: React.FC<SimpleEnhancedGameProps> = ({ scene, o
                   onClick={() => {
                     // Reset all game state
                     gameStore.resetGame();
-                    clearMultipleChoiceProgress();
+                    clearMasteredProgress();
                     clearProjectileTimeouts();
                     setScreenShakeOffset({ x: 0, y: 0 });
                     resetPlayerHp();

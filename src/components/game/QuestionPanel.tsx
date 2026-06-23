@@ -24,16 +24,25 @@ export const QuestionPanel: React.FC<QuestionPanelProps> = ({
   const { t } = useTranslation();
 
   useEffect(() => {
-    // Reset answers when new question appears
+    // Reset answers when new question object reference is passed
     setSelectedAnswer('');
     setTypedAnswer('');
     setArrangedLetters([]);
-  }, [question?.id]);
+  }, [question]);
 
   if (!question) {
     return null;
   }
 
+  const isChoiceQuestion =
+    question.type === 'multipleChoice' || question.type === 'definitionMatch';
+  const promptText = question.word.word;
+  const promptTextClass =
+    promptText.length > 110
+      ? 'text-xs sm:text-sm'
+      : promptText.length > 70
+        ? 'text-sm sm:text-base'
+        : 'text-sm sm:text-lg';
   const timePercentage = (timeRemaining / question.timeLimit) * 100;
   const isUrgent = timePercentage < 30;
 
@@ -41,7 +50,7 @@ export const QuestionPanel: React.FC<QuestionPanelProps> = ({
     if (disabled) return;
     
     let answer = '';
-    if (question.type === 'multipleChoice') {
+    if (isChoiceQuestion) {
       answer = selectedAnswer;
     } else if (question.type === 'letterArrangement') {
       answer = arrangedLetters.join('');
@@ -61,7 +70,7 @@ export const QuestionPanel: React.FC<QuestionPanelProps> = ({
   };
 
   return (
-    <div className="w-full bg-black/35 backdrop-blur-sm rounded-xl p-2 sm:p-3 max-h-[34vh] sm:max-h-[38vh] overflow-y-auto">
+    <div className="w-full h-full bg-black/35 backdrop-blur-sm rounded-xl p-2 sm:p-3 max-h-[34vh] sm:max-h-[42vh] landscape:max-h-none overflow-y-auto">
       {/* Time Bar - Compact */}
       <div className="mb-1 sm:mb-2">
         <div className="w-full bg-white/20 rounded-full h-2 overflow-hidden">
@@ -77,13 +86,31 @@ export const QuestionPanel: React.FC<QuestionPanelProps> = ({
       {/* Question Word - Compact */}
       <div className="mb-2 sm:mb-3">
         <div className="bg-gradient-to-r from-orange-500 to-orange-600 backdrop-blur-sm text-white p-1 sm:p-2 rounded-lg text-center shadow-lg border border-orange-400/30">
-          <span className="text-sm sm:text-lg font-bold">{question.word.word}</span>
+          {question.type === 'definitionMatch' && (
+            <p className="mb-1 text-[10px] font-black uppercase tracking-[0.2em] text-orange-100 sm:text-xs">
+              {t('definitionClue')}
+            </p>
+          )}
+          <span className={`block whitespace-normal font-bold leading-snug ${promptTextClass}`}>
+            {promptText}
+          </span>
+          {question.type === 'definitionMatch' && question.word.partOfSpeech && (
+            <span className="mt-2 inline-flex rounded-full border border-white/25 bg-white/15 px-2 py-0.5 text-[10px] font-black uppercase tracking-wide text-orange-50 sm:text-xs">
+              {question.word.partOfSpeech}
+            </span>
+          )}
         </div>
       </div>
 
-      {/* Answer Options - 1x4 Row Layout */}
-      {question.type === 'multipleChoice' && question.options && (
-        <div className="grid grid-cols-4 gap-1 sm:gap-2 mb-2 sm:mb-3">
+      {/* Answer Options - 2x2 Grid Layout */}
+      {question.type === 'definitionMatch' && (
+        <p className="mb-2 text-center text-[11px] font-semibold text-white/85 sm:text-xs">
+          {t('readDefinition')}
+        </p>
+      )}
+
+      {isChoiceQuestion && question.options && (
+        <div className="grid grid-cols-2 gap-1 sm:gap-2 mb-2 sm:mb-3">
           {question.options.map((option, index) => (
             <button
               key={index}
@@ -91,14 +118,17 @@ export const QuestionPanel: React.FC<QuestionPanelProps> = ({
                 setSelectedAnswer(option);
                 // Auto submit when option is selected
                 if (!disabled) {
-                  setTimeout(() => onAnswer(option), 100); // Small delay for visual feedback
+                  setTimeout(() => {
+                    onAnswer(option);
+                    setSelectedAnswer(''); // Clear visually so it doesn't stick into next round
+                  }, 100); // Small delay for visual feedback
                 }
               }}
               disabled={disabled}
               className={`p-1 sm:p-2 rounded-lg border-2 text-center transition-all duration-200 touch-target ${
                 selectedAnswer === option
                   ? 'border-orange-400 bg-orange-400/90 text-white backdrop-blur-sm shadow-lg'
-                  : 'border-white/30 bg-white/80 hover:border-orange-300 hover:bg-orange-200/80 text-gray-800 backdrop-blur-sm'
+                  : 'border-white/30 bg-white/80 active:border-orange-300 active:bg-orange-200/80 md:hover:border-orange-300 md:hover:bg-orange-200/80 text-gray-800 backdrop-blur-sm'
               } ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
             >
               <div className="text-xs sm:text-sm leading-tight font-medium">{option}</div>

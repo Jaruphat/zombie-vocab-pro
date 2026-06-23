@@ -5,11 +5,16 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "build": "tsc -b && vite build && node scripts/prune-android-assets.mjs dist",
+    "android:sync": "npm run build && npx cap sync android && node scripts/prune-android-assets.mjs android/app/src/main/assets/public",
+    "android:bundle": "npm run android:sync && node scripts/run-android-gradle.mjs bundleRelease && npm run android:verify-bundle",
+    "android:verify-bundle": "node scripts/check-aab-size.mjs",
     "lint": "eslint .",
     "preview": "vite preview"
   },
   "dependencies": {
+    "@capacitor/android": "^8.3.0",
+    "@capacitor/core": "^8.3.0",
     "@pixi/graphics": "^7.4.3",
     "@pixi/particle-container": "^7.4.3",
     "@pixi/react": "^8.0.3",
@@ -24,6 +29,8 @@
     "zustand": "^5.0.8"
   },
   "devDependencies": {
+    "@capacitor/assets": "^3.0.5",
+    "@capacitor/cli": "^8.3.0",
     "@eslint/js": "^9.33.0",
     "@types/howler": "^2.2.12",
     "@types/pixi.js": "^4.8.9",

@@ -1,0 +1,154 @@
+import groovy.io.FileType
+
+apply plugin: 'com.android.application'
+
+android {
+    namespace = "com.jaruphat.zombievocabpro"
+    compileSdk = rootProject.ext.compileSdkVersion
+    defaultConfig {
+        applicationId "com.jaruphat.zombievocabpro"
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
+        versionCode 2
+        versionName "1.0.1"
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        aaptOptions {
+             // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.
+             // Default: https://android.googlesource.com/platform/frameworks/base/+/282e181b58cf72b6ca770dc7ca5f91f135444502/tools/aapt/AaptAssets.cpp#61
+            ignoreAssetsPattern = '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
+        }
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+def pruneUnusedWebAssets = tasks.register('pruneUnusedWebAssets') {
+    doLast {
+        def webAssetsRoot = file('src/main/assets/public/assets')
+
+        if (!webAssetsRoot.exists()) {
+            logger.lifecycle("No generated web assets found to prune.")
+            return
+        }
+
+        def removedCount = 0
+        def removedBytes = 0L
+        def deleteCandidate = { File candidate ->
+            if (!candidate.exists()) {
+                return
+            }
+
+            removedBytes += candidate.length()
+            removedCount += 1
+
+            if (!candidate.delete()) {
+                logger.warn("Could not delete unused web asset: ${candidate}")
+            }
+        }
+
+        def soldierKeepPrefixes = [
+            soldier1: ['Idle', 'Shoot', 'Run_Shoot', 'Jump_Shoot', 'Crouch_Shoot', 'WalkShoot', 'Happy', 'Hurt', 'Walk', 'Run', 'Melee'] as Set,
+            soldier2: ['Idle', 'Shoot', 'Run_Shoot', 'Jump_Shoot', 'Crouch_Shoot', 'Walk_Shoot', 'Happy', 'Hurt', 'Walk', 'Run', 'Melee'] as Set,
+            soldier3: ['Idle', 'Shoot', 'Run_Shoot', 'Jump_Shoot', 'Crouch_Shoot', 'Walk_Shoot', 'Happy', 'Hurt', 'Walk', 'Run', 'Melee'] as Set,
+            soldier4: ['Idle', 'Shoot', 'Run_Shoot', 'Jump_Shoot', 'Crouch_Shoot', 'Walk_Shoot', 'Happy', 'Hurt', 'Walk', 'Run', 'Melee'] as Set,
+        ]
+
+        soldierKeepPrefixes.each { soldier, keepPrefixes ->
+            def soldierDir = file("${webAssetsRoot}/characters/soldier/${soldier}")
+            if (!soldierDir.exists()) {
+                return
+            }
+
+            soldierDir.eachFileMatch(FileType.FILES, ~/.*\.png/) { file ->
+                def baseName = file.name.replaceFirst(/\.png$/, '')
+                def prefix = baseName.replaceFirst(/_+\d+$/, '')
+
+                if (!keepPrefixes.contains(prefix)) {
+                    deleteCandidate(file)
+                }
+            }
+        }
+
+        def flatZombieKeepPrefixes = [
+            variant_1: ['Idle 1', 'Walk 1', 'Attack', 'Dead'] as Set,
+            variant_2: ['Idle 1', 'Walk 2', 'Attack', 'Dead'] as Set,
+        ]
+
+        flatZombieKeepPrefixes.each { variant, keepPrefixes ->
+            def variantDir = file("${webAssetsRoot}/characters/zombie/variants/${variant}")
+            if (!variantDir.exists()) {
+                return
+            }
+
+            variantDir.eachFileMatch(FileType.FILES, ~/.*\.png/) { file ->
+                def baseName = file.name.replaceFirst(/\.png$/, '')
+                def matcher = baseName =~ /^(.+) \(\d+\)$/
+                def prefix = matcher.matches() ? matcher[0][1] : baseName
+
+                if (!keepPrefixes.contains(prefix)) {
+                    deleteCandidate(file)
+                }
+            }
+        }
+
+        (3..15).each { variantNumber ->
+            def variantDir = file("${webAssetsRoot}/characters/zombie/variants/variant_${variantNumber}")
+
+            def walkDir = file("${variantDir}/walk")
+            if (walkDir.exists()) {
+                walkDir.eachFileMatch(FileType.FILES, ~/run_\d+\.png/) { file ->
+                    deleteCandidate(file)
+                }
+            }
+
+            def idleDir = file("${variantDir}/idle")
+            if (idleDir.exists()) {
+                def unusedIdlePattern = variantNumber == 6 ? ~/idle1_\d+\.png/ : ~/idle2_\d+\.png/
+                idleDir.eachFileMatch(FileType.FILES, unusedIdlePattern) { file ->
+                    deleteCandidate(file)
+                }
+            }
+        }
+
+        logger.lifecycle("Pruned ${removedCount} unused web asset files (${String.format('%.2f', removedBytes / 1024 / 1024)} MB).")
+    }
+}
+
+tasks.configureEach { task ->
+    if (task.name == 'preBuild') {
+        task.dependsOn(pruneUnusedWebAssets)
+    }
+}
+
+repositories {
+    flatDir{
+        dirs '../capacitor-cordova-android-plugins/src/main/libs', 'libs'
+    }
+}
+
+dependencies {
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    implementation "androidx.appcompat:appcompat:$androidxAppCompatVersion"
+    implementation "androidx.coordinatorlayout:coordinatorlayout:$androidxCoordinatorLayoutVersion"
+    implementation "androidx.core:core-splashscreen:$coreSplashScreenVersion"
+    implementation project(':capacitor-android')
+    testImplementation "junit:junit:$junitVersion"
+    androidTestImplementation "androidx.test.ext:junit:$androidxJunitVersion"
+    androidTestImplementation "androidx.test.espresso:espresso-core:$androidxEspressoCoreVersion"
+    implementation project(':capacitor-cordova-android-plugins')
+}
+
+apply from: 'capacitor.build.gradle'
+
+try {
+    def servicesJSON = file('google-services.json')
+    if (servicesJSON.text) {
+        apply plugin: 'com.google.gms.google-services'
+    }
+} catch(Exception e) {
+    logger.info("google-services.json not found, google-services plugin not applied. Push Notifications won't work")
+}

@@ -14,6 +14,10 @@ export interface VocabWord {
   meaning: string;
   difficulty: number;
   category?: string;
+  partOfSpeech?: string;
+  englishDefinition?: string;
+  gradeLevel?: string;
+  subject?: string;
 }
 
 export interface WordSet {
@@ -23,11 +27,20 @@ export interface WordSet {
   words: VocabWord[];
   color: string;
   icon: string;
+  gradeLevel?: string;
+  subject?: string;
 }
+
+export type VocabQuestionType =
+  | 'multipleChoice'
+  | 'spelling'
+  | 'typing'
+  | 'letterArrangement'
+  | 'definitionMatch';
 
 export interface VocabQuestion {
   id: string;
-  type: 'multipleChoice' | 'spelling' | 'typing' | 'letterArrangement';
+  type: VocabQuestionType;
   word: VocabWord;
   options?: string[];
   correctAnswer: string;
@@ -99,6 +112,7 @@ export interface GameSettings {
     typing: boolean;
     spelling: boolean;
     letterArrangement: boolean;
+    definitionMatch: boolean;
   };
 }
 
@@ -172,6 +186,39 @@ export interface SettingsStore extends GameSettings {
   setRandomizeSoldier: (enabled: boolean) => void;
   setUiLanguage: (language: GameSettings['uiLanguage']) => void;
   setQuestionTypes: (types: GameSettings['questionTypes']) => void;
+}
+
+export interface PlayerProfile {
+  id: string;
+  name: string;
+  avatarDataUrl?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface LeaderboardEntry {
+  id: string;
+  playerId: string;
+  playerName: string;
+  playerAvatarDataUrl?: string;
+  score: number;
+  level: number;
+  playedAt: string;
+  wordSetIds: string[];
+  wordSetNames: string[];
+}
+
+export interface RankingStore {
+  profiles: PlayerProfile[];
+  activeProfileId: string;
+  leaderboard: LeaderboardEntry[];
+  addProfile: (profile: Omit<PlayerProfile, 'id' | 'createdAt' | 'updatedAt'>) => string;
+  updateProfile: (id: string, updates: Partial<Omit<PlayerProfile, 'id' | 'createdAt'>>) => void;
+  removeProfile: (id: string) => void;
+  setActiveProfile: (id: string) => void;
+  addLeaderboardEntry: (entry: Omit<LeaderboardEntry, 'id'>) => void;
+  clearLeaderboard: () => void;
+  getActiveProfile: () => PlayerProfile;
 }
 
 // PixiJS Game Types (unused but kept for future reference)

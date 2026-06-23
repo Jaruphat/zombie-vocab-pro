@@ -22,3 +22,12 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Local agent and scratch files
+.agent/
+.agents/
+.claude/
+game_screenshot/
+keys/
+progress.md
+skills-lock.json

@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Zombie Vocab Pro</string>
+    <string name="title_activity_main">Zombie Vocab Pro</string>
+    <string name="package_name">com.jaruphat.zombievocabpro</string>
+    <string name="custom_url_scheme">com.jaruphat.zombievocabpro</string>
+</resources>

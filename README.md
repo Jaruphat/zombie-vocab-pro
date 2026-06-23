@@ -1,8 +1,31 @@
 # Zombie Vocab Pro
 
-Zombie-themed vocabulary game (React + TypeScript + Vite + PWA).
+Zombie-themed vocabulary game built with React, TypeScript, Vite, and PWA support.
 
 Live site: `https://zombie-vocab-pro.vercel.app/`
+
+## Current status
+
+- Web build and lint pass locally.
+- WebApp is the current primary delivery target.
+- Capacitor Android project is already included in this repo.
+- Android release flow now prunes unused sprite assets before sync/build.
+- Release AAB verification now checks the `base` module against Google Play's 200 MB compressed download limit.
+
+## WebApp highlights
+
+- Multiple vocabulary set selection with classroom-friendly grouping
+- 6 new `Primary 2` word sets imported from `vocab_db/`
+- `Definition Match` mode for sentence-based English definition comprehension
+- Local player profiles with small avatar upload
+- Local ranking board that saves scores per browser/device
+- Existing zombie battle loop preserved for both WebApp and Android wrapper builds
+
+## Product direction
+
+- `WebApp-first` right now: new features are being validated in browser before deeper mobile expansion
+- Android / Google Play support is still maintained, but new product work is centered on the WebApp experience first
+- See [`PRD.md`](./PRD.md) for the current product scope, priorities, and next improvements
 
 ## Local development
 
@@ -11,56 +34,81 @@ npm install
 npm run dev
 ```
 
-## Production checks
+## Project commands
 
 ```bash
 npm run lint
 npm run build
+npm run android:sync
+npm run android:bundle
+npm run android:verify-bundle
 ```
 
-## What was improved in this revision
+Notes:
+- `npm run build` creates the production web build and prunes unused sprite sheets from `dist`.
+- `npm run android:sync` rebuilds the web app, syncs Capacitor, and prunes copied Android web assets.
+- `npm run android:bundle` builds the release `.aab`, tries to auto-detect Java from Android Studio when `JAVA_HOME` is missing, and then verifies module size after Gradle finishes.
+- `npm run android:verify-bundle` can be run on an existing bundle at `android/app/build/outputs/bundle/release/app-release.aab`.
+
+## Recent improvements
 
 - Fixed game-over flow bugs caused by stale `lives` checks.
 - Prevented duplicate timeout handling from firing twice.
 - Fixed zombie state transitions that could leave zombies stuck.
 - Removed debug logs from gameplay interactions.
 - Improved sprite animation code quality to pass strict lint.
-- Fixed vocabulary store consistency (word updates/removals now sync with word sets).
+- Fixed vocabulary store consistency so word edits/removals stay in sync with word sets.
 - Reduced PWA precache payload from very large asset bundles to a mobile-safe size.
+- Added deterministic Android asset pruning to keep the Play Store bundle smaller.
+- Added automated AAB size verification for the `base` module after release bundle builds.
+- Added 6 structured `Primary 2` vocabulary sets with subject metadata.
+- Added local player profiles with avatar upload for shared-device play.
+- Added local WebApp ranking persistence and ranking UI.
+- Added `definitionMatch` question mode for English definition comprehension.
 - Updated app metadata (`index.html`) for production branding.
 - Removed duplicate manual service worker registration in app bootstrap.
 
-## Android / Google Play preparation (Capacitor path)
+## Learning content
 
-This repo is currently a web app + PWA. For Play Store upload, wrap it as an Android app:
+Vocabulary items can now include:
 
-1. Install Capacitor packages:
+- English word
+- Thai meaning
+- difficulty
+- part of speech
+- English definition
+- grade level
+- subject
+
+The new `Primary 2` sets use this richer structure so the game can generate comprehension questions beyond simple translation matching.
+
+## Ranking behavior
+
+- Ranking is currently `local-first`
+- Scores, profiles, and avatars are stored in the current browser/device
+- No cloud sync or cross-device leaderboard has been added yet
+
+## Android / Google Play flow
+
+1. Build and sync the web app into the Android wrapper:
 ```bash
-npm install @capacitor/core @capacitor/cli @capacitor/android
+npm run android:sync
 ```
-2. Initialize Capacitor:
+2. Produce a release bundle and verify its size:
 ```bash
-npx cap init "Zombie Vocab Pro" "com.yourcompany.zombievocabpro" --web-dir=dist
+npm run android:bundle
 ```
-3. Add Android platform:
-```bash
-npx cap add android
-```
-4. Build web app and sync native project:
-```bash
-npm run build
-npx cap sync android
-```
-5. Open Android Studio:
+3. Open the native project when you need to inspect signing, SDK, or release config:
 ```bash
 npx cap open android
 ```
-6. In Android Studio, create signed release (`.aab`) and upload to Google Play Console.
+4. Upload the generated bundle from `android/app/build/outputs/bundle/release/app-release.aab` to Google Play Console.
 
 ## Release checklist
 
-- Verify latest Google Play policy + target API requirements in Play Console before release.
-- Add Privacy Policy URL in Play Console.
-- Prepare store assets: app icon, feature graphic, screenshots, description.
-- Test on real low-end and mid-range Android devices (performance + touch + audio behavior).
+- Verify latest Google Play policy and target API requirements in Play Console before release.
+- Add the Privacy Policy URL from `public/privacy.html` to Play Console.
+- Prepare store assets: app icon, feature graphic, screenshots, and descriptions.
+- Test on real low-end and mid-range Android devices for performance, touch, and audio behavior.
 - Confirm app start, resume, offline handling, and orientation behavior.
+- Use [`PLAY_STORE_CHECKLIST.md`](./PLAY_STORE_CHECKLIST.md) for the full store submission checklist.

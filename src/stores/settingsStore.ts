@@ -2,6 +2,14 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import type { SettingsStore } from '../types';
 
+const DEFAULT_QUESTION_TYPES: SettingsStore['questionTypes'] = {
+  multipleChoice: true,
+  typing: false,
+  spelling: false,
+  letterArrangement: false,
+  definitionMatch: true,
+};
+
 export const useSettingsStore = create<SettingsStore>()(
   persist(
     (set) => ({
@@ -16,12 +24,7 @@ export const useSettingsStore = create<SettingsStore>()(
       soldierType: 'soldier1',
       randomizeSoldier: false,
       uiLanguage: 'en', // Default to English UI
-      questionTypes: {
-        multipleChoice: true,
-        typing: false,
-        spelling: false,
-        letterArrangement: false
-      },
+      questionTypes: DEFAULT_QUESTION_TYPES,
 
       // Actions
       setSoundEnabled: (soundEnabled) => set({ soundEnabled }),
@@ -38,6 +41,17 @@ export const useSettingsStore = create<SettingsStore>()(
     }),
     {
       name: 'zombie-vocab-settings',
+      merge: (persistedState, currentState) => {
+        const typedPersistedState = persistedState as Partial<SettingsStore>;
+        return {
+          ...currentState,
+          ...typedPersistedState,
+          questionTypes: {
+            ...currentState.questionTypes,
+            ...typedPersistedState.questionTypes,
+          },
+        };
+      },
     }
   )
 );
