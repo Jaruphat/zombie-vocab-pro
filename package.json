@@ -20,6 +20,7 @@
     "@pixi/react": "^8.0.3",
     "@pixi/sprite": "^7.4.3",
     "@pixi/text": "^7.4.3",
+    "@vercel/blob": "^2.4.1",
     "framer-motion": "^12.23.12",
     "howler": "^2.2.4",
     "lucide-react": "^0.542.0",

@@ -208,15 +208,29 @@ export interface LeaderboardEntry {
   wordSetNames: string[];
 }
 
+export type LeaderboardSource = 'shared' | 'local';
+
+export type LeaderboardSyncStatus = 'idle' | 'loading' | 'saving' | 'ready' | 'error';
+
+export type LeaderboardSyncReason = 'not-configured' | 'network' | 'server';
+
 export interface RankingStore {
   profiles: PlayerProfile[];
   activeProfileId: string;
+  localLeaderboard: LeaderboardEntry[];
   leaderboard: LeaderboardEntry[];
+  leaderboardSource: LeaderboardSource;
+  remoteConfigured: boolean;
+  syncStatus: LeaderboardSyncStatus;
+  syncError?: string;
+  syncReason?: LeaderboardSyncReason;
+  lastSyncedAt?: string;
   addProfile: (profile: Omit<PlayerProfile, 'id' | 'createdAt' | 'updatedAt'>) => string;
   updateProfile: (id: string, updates: Partial<Omit<PlayerProfile, 'id' | 'createdAt'>>) => void;
   removeProfile: (id: string) => void;
   setActiveProfile: (id: string) => void;
-  addLeaderboardEntry: (entry: Omit<LeaderboardEntry, 'id'>) => void;
+  submitLeaderboardEntry: (entry: Omit<LeaderboardEntry, 'id'> & { id?: string }) => Promise<LeaderboardEntry>;
+  refreshLeaderboard: (limit?: number) => Promise<void>;
   clearLeaderboard: () => void;
   getActiveProfile: () => PlayerProfile;
 }

@@ -30,6 +30,14 @@ export const RankingModal: React.FC<RankingModalProps> = ({ isOpen, onClose }) =
   const activeProfile = rankingStore.getActiveProfile();
   const canDeleteProfiles = rankingStore.profiles.length > 1;
   const topEntries = useMemo(() => rankingStore.leaderboard.slice(0, 20), [rankingStore.leaderboard]);
+  const rankingStatusMessage =
+    rankingStore.leaderboardSource === 'shared'
+      ? rankingStore.syncStatus === 'loading' || rankingStore.syncStatus === 'saving'
+        ? t('sharedRankingSyncing')
+        : t('sharedRankingLive')
+      : rankingStore.syncReason === 'not-configured'
+        ? t('sharedRankingSetupNote')
+        : t('localRankingFallbackNote');
 
   useEffect(() => {
     if (!isOpen) return;
@@ -37,6 +45,7 @@ export const RankingModal: React.FC<RankingModalProps> = ({ isOpen, onClose }) =
     setDraftName(activeProfile.name);
     setDraftAvatarDataUrl(activeProfile.avatarDataUrl);
     setAvatarError('');
+    void useRankingStore.getState().refreshLeaderboard(20);
   }, [activeProfile.avatarDataUrl, activeProfile.id, activeProfile.name, isOpen]);
 
   if (!isOpen) return null;
@@ -116,7 +125,7 @@ export const RankingModal: React.FC<RankingModalProps> = ({ isOpen, onClose }) =
           <div className="flex items-center justify-between gap-3">
             <div>
               <h2 className="text-xl font-black uppercase tracking-wide sm:text-2xl">{t('playerRanking')}</h2>
-              <p className="text-xs text-[#6b5843] sm:text-sm">{t('webappRankingNote')}</p>
+              <p className="text-xs text-[#6b5843] sm:text-sm">{rankingStatusMessage}</p>
             </div>
             <button
               type="button"
@@ -171,6 +180,7 @@ export const RankingModal: React.FC<RankingModalProps> = ({ isOpen, onClose }) =
                     subtitle={t('activePlayer')}
                   />
                 </div>
+                <p className="text-xs font-semibold text-[#7a654b]">{t('playerProfilesLocalNote')}</p>
 
                 <div className="rounded-2xl border border-[#efe5d3] bg-[#f8efe1] p-4">
                   <h4 className="mb-3 text-sm font-black uppercase tracking-wide text-[#4a3a28]">
@@ -311,7 +321,7 @@ export const RankingModal: React.FC<RankingModalProps> = ({ isOpen, onClose }) =
                 <div>
                   <p className="text-xs font-black uppercase tracking-wide text-[#7a654b]">{t('rankingBoard')}</p>
                   <h3 className="text-lg font-black">{t('topSurvivors')}</h3>
-                  <p className="text-xs font-semibold text-[#7a654b]">{t('webappRankingNote')}</p>
+                  <p className="text-xs font-semibold text-[#7a654b]">{rankingStatusMessage}</p>
                 </div>
                 <GameButton variant="danger" size="sm" onClick={handleClearRanking}>
                   {t('clearRanking')}

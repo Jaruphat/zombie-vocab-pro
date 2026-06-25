@@ -18,7 +18,7 @@ Live site: `https://zombie-vocab-pro.vercel.app/`
 - 6 new `Primary 2` word sets imported from `vocab_db/`
 - `Definition Match` mode for sentence-based English definition comprehension
 - Local player profiles with small avatar upload
-- Local ranking board that saves scores per browser/device
+- Shared leaderboard support for Vercel deployments, with local fallback when cloud storage is unavailable
 - Existing zombie battle loop preserved for both WebApp and Android wrapper builds
 
 ## Product direction
@@ -84,9 +84,20 @@ The new `Primary 2` sets use this richer structure so the game can generate comp
 
 ## Ranking behavior
 
-- Ranking is currently `local-first`
-- Scores, profiles, and avatars are stored in the current browser/device
-- No cloud sync or cross-device leaderboard has been added yet
+- Player profiles remain `local-first`
+- Shared leaderboard entries can sync across browsers/devices when Vercel Blob is connected
+- If shared storage is unavailable, the app falls back to the current browser/device leaderboard
+
+## Shared leaderboard setup on Vercel
+
+1. Open the Vercel project dashboard for this site.
+2. Go to `Storage` and create a `Blob` store with `Public` access.
+3. Connect that Blob store to both `Preview` and `Production` for this project.
+4. Redeploy the site so the `/api/leaderboard` function receives the Blob credentials.
+
+Notes:
+- The shared board stores score entries, player names, selected word set labels, and the compressed avatar image used when the score is submitted.
+- Player profile editing itself still stays on each browser/device.
 
 ## Android / Google Play flow
 

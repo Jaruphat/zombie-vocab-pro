@@ -30,6 +30,14 @@ function App() {
   const scoreSavedRef = useRef<string | null>(null);
   const activeProfile = rankingStore.getActiveProfile();
   const leaderboardPreview = rankingStore.leaderboard.slice(0, 3);
+  const rankingNote =
+    rankingStore.leaderboardSource === 'shared'
+      ? rankingStore.syncStatus === 'loading' || rankingStore.syncStatus === 'saving'
+        ? t('sharedRankingSyncing')
+        : t('sharedRankingLive')
+      : rankingStore.syncReason === 'not-configured'
+        ? t('sharedRankingSetupNote')
+        : t('localRankingFallbackNote');
   const selectedWordSetNames = vocabStore.selectedWordSets
     .map((setId) => vocabStore.wordSets.find((set) => set.id === setId)?.name)
     .filter((name): name is string => Boolean(name));
@@ -72,6 +80,7 @@ function App() {
   useEffect(() => {
     if (scene === 'menu') {
       setPlayerHp(playerHpMax);
+      void useRankingStore.getState().refreshLeaderboard(20);
     }
   }, [playerHpMax, scene]);
 
@@ -97,7 +106,7 @@ function App() {
       return;
     }
 
-    rankingStore.addLeaderboardEntry({
+    void useRankingStore.getState().submitLeaderboardEntry({
       playerId: activeProfile.id,
       playerName: activeProfile.name,
       playerAvatarDataUrl: activeProfile.avatarDataUrl,
@@ -115,7 +124,6 @@ function App() {
     gameStore.level,
     gameStore.lives,
     gameStore.score,
-    rankingStore,
     scene,
     selectedWordSetNames,
     vocabStore.selectedWordSets,
@@ -202,7 +210,7 @@ function App() {
                       subtitle={`${t('score')} ${gameStore.score.toLocaleString()}`}
                       className="mt-3"
                     />
-                    <p className="mt-3 text-xs font-semibold text-[#7a654b]">{t('webappRankingNote')}</p>
+                    <p className="mt-3 text-xs font-semibold text-[#7a654b]">{rankingNote}</p>
                   </div>
 
                   <div className="rounded-2xl border border-[#e8dbc5]/45 bg-white/90 p-3 sm:p-4">

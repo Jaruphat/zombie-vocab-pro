@@ -5,7 +5,8 @@ export const useTranslation = () => {
   const uiLanguage = useSettingsStore(state => state.uiLanguage);
   
   const t = (key: TranslationKey): string => {
-    return translations[uiLanguage][key] || translations.en[key] || key;
+    const activeTranslations = translations[uiLanguage] as Partial<Record<TranslationKey, string>>;
+    return activeTranslations[key] || translations.en[key] || key;
   };
   
   return { t, currentLanguage: uiLanguage };
