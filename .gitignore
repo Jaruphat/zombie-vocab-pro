@@ -31,3 +31,6 @@ game_screenshot/
 keys/
 progress.md
 skills-lock.json
+
+.vercel
+.env*.local
